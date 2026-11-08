@@ -5,19 +5,30 @@ export function useRouter() {
     () => window.location.pathname + window.location.search
   );
 
+  const scrollToTop = () => {
+    // Forcer le scroll tout en haut sur window, document et documentElement
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  };
+
   useEffect(() => {
     const onPopState = () => {
       setPathWithSearch(window.location.pathname + window.location.search);
+      scrollToTop();
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   const navigate = (to) => {
-    if (to === pathWithSearch) return;
+    if (to === pathWithSearch) {
+      scrollToTop();
+      return;
+    }
     window.history.pushState({}, '', to);
     setPathWithSearch(window.location.pathname + window.location.search);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToTop();
   };
 
   return {

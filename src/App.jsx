@@ -39,6 +39,13 @@ export default function App() {
     fetchPublicConfig();
   }, [fetchPublicConfig]);
 
+  // À chaque changement d'URL ou d'onglet, forcer le défilement immédiat tout en haut de la page
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+  }, [router.pathname, router.search]);
+
   let pageView = null;
   const path = router.pathname;
 
