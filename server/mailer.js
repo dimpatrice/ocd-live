@@ -1,6 +1,31 @@
 import net from 'node:net';
 import tls from 'node:tls';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { runSql, queryOne } from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Charger les variables depuis .env si présent
+function loadEnv() {
+  const envPath = path.join(__dirname, '..', '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf-8').split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx > 0) {
+        const k = trimmed.slice(0, eqIdx).trim();
+        const v = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+        if (!process.env[k]) process.env[k] = v;
+      }
+    }
+  }
+}
+loadEnv();
 
 function getAdminEmail() {
   const row = queryOne(`SELECT value FROM settings WHERE key = 'admin_notification_email'`);
@@ -8,12 +33,13 @@ function getAdminEmail() {
 }
 
 function getSenderConfig() {
+  loadEnv();
   const host = process.env.SMTP_HOST || '';
-  const port = Number(process.env.SMTP_PORT || 587);
+  const port = Number(process.env.SMTP_PORT || 465);
   const secure = process.env.SMTP_SECURE === 'true' || port === 465;
   const user = process.env.SMTP_USER || '';
-  const pass = process.env.SMTP_PASS || '';
-  const from = process.env.SMTP_FROM || '"OCD LIVE — Boovan Group" <reservations@boovangroup.com>';
+  const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // enlever les espaces
+  const from = process.env.SMTP_FROM || `"OCD LIVE — Boovan Group" <${user || 'reservations@boovangroup.com'}>`;
   return { host, port, secure, user, pass, from };
 }
 
