@@ -322,7 +322,17 @@ function serveStaticFile(res, filePath) {
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) return false;
   const ext = path.extname(filePath).toLowerCase();
   const contentType = STATIC_MIMES[ext] || 'application/octet-stream';
-  res.writeHead(200, { 'Content-Type': contentType });
+
+  // Pour index.html et les assets, empêcher le cache stale pour éviter les écrans blancs
+  const isHtml = ext === '.html';
+  const headers = {
+    'Content-Type': contentType,
+    'Cache-Control': isHtml
+      ? 'no-cache, no-store, must-revalidate'
+      : 'public, max-age=31536000, immutable'
+  };
+
+  res.writeHead(200, headers);
   fs.createReadStream(filePath).pipe(res);
   return true;
 }

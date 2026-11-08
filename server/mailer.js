@@ -34,12 +34,13 @@ function getAdminEmail() {
 
 function getSenderConfig() {
   loadEnv();
-  const host = process.env.SMTP_HOST || '';
+  // Configuration explicite de secours par défaut si les variables ne sont pas renseignées dans Railway
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = Number(process.env.SMTP_PORT || 465);
-  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
-  const user = process.env.SMTP_USER || '';
-  const pass = (process.env.SMTP_PASS || '').replace(/\s+/g, ''); // enlever les espaces
-  const from = process.env.SMTP_FROM || `"OCD LIVE — Boovan Group" <${user || 'reservations@boovangroup.com'}>`;
+  const secure = process.env.SMTP_SECURE === 'false' ? false : true;
+  const user = process.env.SMTP_USER || 'dimpatrice3@gmail.com';
+  const pass = (process.env.SMTP_PASS || 'dfamqraodqkjouyc').replace(/\s+/g, '');
+  const from = process.env.SMTP_FROM || `"OCD LIVE — Boovan Group" <${user}>`;
   return { host, port, secure, user, pass, from };
 }
 
