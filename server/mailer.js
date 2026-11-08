@@ -29,7 +29,11 @@ loadEnv();
 
 function getAdminEmail() {
   const row = queryOne(`SELECT value FROM settings WHERE key = 'admin_notification_email'`);
-  return row ? row.value : 'reservations@boovangroup.com';
+  // Toujours router vers l'email opérationnel de l'agence (dimpatrice3@gmail.com) par défaut
+  if (row && row.value && !row.value.includes('boovangroup.com')) {
+    return row.value;
+  }
+  return process.env.SMTP_USER || 'dimpatrice3@gmail.com';
 }
 
 function getSenderConfig() {
@@ -217,7 +221,7 @@ function extractEmail(str) {
 export function renderDefaultHtml(title, bodyText) {
   const paragraphs = (bodyText || '')
     .split(/\n\n+/)
-    .map((p) => `<p style="margin: 0 0 16px 0; line-height: 1.6; color: #1f2937;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
+    .map((p) => `<p style="margin: 0 0 14px 0; line-height: 1.5; color: #1e293b; font-size: 14px; text-align: left;">${escapeHtml(p).replace(/\n/g, '<br/>')}</p>`)
     .join('');
 
   return `<!DOCTYPE html>
@@ -227,19 +231,19 @@ export function renderDefaultHtml(title, bodyText) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
 </head>
-<body style="margin: 0; padding: 24px; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e7eb; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
-    <div style="background-color: #0f172a; padding: 28px 32px; border-bottom: 4px solid #F26513; text-align: center;">
-      <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">OCD <span style="color: #F26513;">LIVE</span></h1>
-      <p style="margin: 6px 0 0 0; color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;">Plateforme de Livestreaming Commercial • Boovan Group Togo</p>
+<body style="margin: 0; padding: 12px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; text-align: left;">
+  <div style="width: 100%; max-width: 640px; margin: 0; background-color: #ffffff; border: 1px solid #e2e8f0; border-top: 4px solid #F26513; text-align: left;">
+    <div style="padding: 16px 20px; background-color: #0f172a; text-align: left;">
+      <h1 style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 800; text-align: left;">OCD <span style="color: #F26513;">LIVE</span></h1>
+      <p style="margin: 4px 0 0 0; color: #94a3b8; font-size: 11px; text-transform: uppercase; text-align: left;">Boovan Group • Togo</p>
     </div>
-    <div style="padding: 32px; font-size: 14px;">
-      <h2 style="margin: 0 0 20px 0; color: #0f172a; font-size: 18px; font-weight: 700;">${escapeHtml(title)}</h2>
+    <div style="padding: 20px; text-align: left;">
+      <h2 style="margin: 0 0 16px 0; color: #0f172a; font-size: 16px; font-weight: 700; text-align: left;">${escapeHtml(title)}</h2>
       ${paragraphs}
     </div>
-    <div style="background-color: #f8fafc; padding: 20px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
-      <p style="margin: 0 0 4px 0; font-weight: 600; color: #334155;">Boovan Group — Complexe Audiovisuel OCD LIVE</p>
-      <p style="margin: 0;">Lomé, Togo • Tél & WhatsApp : +228 90 00 00 00 • TikTok @bovann • Facebook Bovann Officiel</p>
+    <div style="background-color: #f8fafc; padding: 14px 20px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; text-align: left;">
+      <p style="margin: 0 0 2px 0; font-weight: 600; color: #334155; text-align: left;">OCD LIVE — Boovan Group (Lomé, Togo)</p>
+      <p style="margin: 0; text-align: left;">WhatsApp & Tél : +228 90 00 00 00 • TikTok @bovann • Facebook Bovann Officiel</p>
     </div>
   </div>
 </body>
