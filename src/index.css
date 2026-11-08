@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #FFFFFF;
+    color: #111827;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F4F4F5;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #D4D4D8;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #F26513;
+  }
+}
+
+@keyframes floatAmbient1 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-22px) translateX(14px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(14px) translateX(-12px) rotate(-1.5deg);
+  }
+}
+
+@keyframes floatAmbient2 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-26px) translateX(-18px) rotate(-3deg);
+  }
+}
+
+@keyframes floatAmbient3 {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+  }
+  50% {
+    transform: translateY(22px) translateX(16px) scale(1.04);
+  }
+}
+
+.animate-float-1 {
+  animation: floatAmbient1 22s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: floatAmbient2 28s ease-in-out infinite;
+}
+
+.animate-float-3 {
+  animation: floatAmbient3 25s ease-in-out infinite;
+}
+
+.animate-float-4 {
+  animation: floatAmbient1 32s ease-in-out infinite reverse;
+}

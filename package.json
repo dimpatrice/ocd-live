@@ -1,0 +1,32 @@
+{
+  "name": "ocd-live",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OCD LIVE - Plateforme premium de réservation, de présentation commerciale et de livestreaming pour entrepreneurs en Afrique et à l'international (Boovan Group)",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "server": "node --no-warnings server/index.js",
+    "client": "vite",
+    "build": "vite build",
+    "start": "node --no-warnings server/index.js"
+  },
+  "dependencies": {
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^14.6.0",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "autoprefixer": "^10.6.1",
+    "postcss": "^8.5.31",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.3.4"
+  }
+}

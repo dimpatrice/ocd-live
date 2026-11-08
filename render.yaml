@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: ocd-live
+    runtime: node
+    plan: free
+    region: frankfurt # ou oregon / ohi
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: STUDIO_TIMEZONE
+        value: Africa/Lome
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_INITIAL_EMAIL
+        value: direction@boovangroup.com
+      - key: ADMIN_INITIAL_PASSWORD
+        value: OcdLive@Boovan2026!
+      # Paramètres SMTP optionnels (à renseigner dans le dashboard Render si besoin)
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        value: "OCD LIVE — Boovan Group <reservations@boovangroup.com>"
+

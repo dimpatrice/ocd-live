@@ -1,0 +1,25 @@
+{
+  "name": "OCD LIVE",
+  "short_name": "OCD LIVE",
+  "description": "Plateforme premium de livestreaming commercial et réservation - Boovan Group",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#F26513",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/brand/ocd-logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/ocd-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
