@@ -61,12 +61,12 @@ export default function ShopPage({ settings = {} }) {
   const ocdWhatsapp = (settings.contact_whatsapp || '+228 90 00 00 00').replace(/[^0-9]/g, '');
 
   return (
-    <div className="bg-slate-50 min-h-screen text-slate-900 pb-20">
+    <div className="bg-transparent min-h-screen text-slate-900 pb-20">
       
       {/* =====================================================================
           1. HERO SHOP VIVANT & DIRECT
       ===================================================================== */}
-      <section className="bg-white border-b border-slate-200 py-10 sm:py-14">
+      <section className="bg-gradient-to-b from-orange-50/60 via-amber-50/30 to-white/60 border-b border-orange-200/70 py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-[#F26513] text-xs font-black uppercase">

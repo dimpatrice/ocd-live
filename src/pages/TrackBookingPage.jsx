@@ -103,7 +103,7 @@ export default function TrackBookingPage({ settings = {} }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-transparent py-10 sm:py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto space-y-8">
         
         {/* Navigation retour */}

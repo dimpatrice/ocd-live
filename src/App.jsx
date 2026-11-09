@@ -4,6 +4,7 @@ import { fetchJson } from './utils/api';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AmbientBackground from './components/AmbientBackground';
+import BroadcastTicker from './components/BroadcastTicker';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import OcdLoader from './components/OcdLoader';
 import HomePage from './pages/HomePage';
@@ -97,9 +98,10 @@ export default function App() {
 
   return (
     <RouterContext.Provider value={router}>
-      <div className="relative min-h-screen flex flex-col bg-white text-slate-900 selection:bg-[#F26513] selection:text-white">
+      <div className="relative min-h-screen flex flex-col bg-transparent text-slate-900 selection:bg-[#F26513] selection:text-white">
         <AmbientBackground />
         <Navbar settings={config.settings} />
+        <BroadcastTicker />
         <main className="relative z-10 flex-1">{pageView}</main>
         <Footer settings={config.settings} />
         <FloatingWhatsApp settings={config.settings} />

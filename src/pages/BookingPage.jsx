@@ -364,9 +364,9 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
 
   if (confirmedReservation) {
     return (
-      <div className="min-h-screen bg-slate-50 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-transparent py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-2xl bg-white border-2 border-emerald-500 p-6 sm:p-10 shadow-lg space-y-6">
+          <div className="rounded-3xl bg-white/95 border-2 border-emerald-500 p-6 sm:p-10 shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
               <div>
                 <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-1">
@@ -439,7 +439,7 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 sm:py-14">
+    <div className="min-h-screen bg-transparent py-10 sm:py-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         {/* En-tête direct et vivant */}
