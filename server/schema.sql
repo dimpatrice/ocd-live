@@ -206,3 +206,41 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- 12. Flux Lives Autonomes (Boutiques et Entrepreneurs depuis chez eux)
+CREATE TABLE IF NOT EXISTS community_lives (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  seller_name TEXT NOT NULL,
+  business_name TEXT NOT NULL,
+  country TEXT NOT NULL, -- Cameroun, Bénin, Côte d'Ivoire, Togo, etc.
+  category TEXT NOT NULL, -- Nourriture & Restauration, Mode & Habits, Beauté, High-Tech, etc.
+  live_url TEXT NOT NULL, -- Lien TikTok, Facebook Live, Instagram ou YouTube
+  platform TEXT NOT NULL DEFAULT 'TIKTOK', -- TIKTOK, FACEBOOK, INSTAGRAM, YOUTUBE, AUTRE
+  whatsapp TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  time_slot TEXT NOT NULL, -- 'MATIN' (08h00 - 11h00 GMT) ou 'SOIR' (18h00 - 21h00 GMT)
+  description TEXT,
+  status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, APPROVED, REJECTED, ENDED
+  has_active_subscription INTEGER NOT NULL DEFAULT 1, -- Forfait mensuel 5 000 FCFA
+  subscription_expires_at TEXT,
+  view_count INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  approved_at TEXT
+);
+
+-- 13. Catalogue OCD Shop (Produits certifiés d'entrepreneurs africains)
+CREATE TABLE IF NOT EXISTS shop_products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  country TEXT NOT NULL,
+  seller_name TEXT NOT NULL,
+  whatsapp TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  price_fcfa INTEGER NOT NULL,
+  description TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  badge TEXT, -- ex: "EN DIRECT", "POPULAIRE", "NOUVEAU", "CERTIFIÉ OCD"
+  in_stock INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+

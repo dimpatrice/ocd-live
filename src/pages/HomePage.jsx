@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '../router';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Radio, ShoppingBag, Sparkles, Clock, Globe2 } from 'lucide-react';
 import { SECTORS_SHOWCASE } from '../data/media';
 
 export default function HomePage({ packages = [] }) {
@@ -58,6 +58,110 @@ export default function HomePage({ packages = [] }) {
                   alt="Plateau officiel OCD LIVE au Togo avec Bovann"
                   className="w-full h-[460px] sm:h-[520px] object-cover object-top"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================================
+          NOUVEAU : DIRECTS PANAFRICAINS DEPUIS CHEZ SOI & OCD SHOP
+      ===================================================================== */}
+      <section className="py-12 bg-zinc-950 text-white border-b border-zinc-800 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            {/* Carte A : DIRECTS AFRIQUE (5 000 FCFA/MOIS) */}
+            <div className="p-8 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col justify-between space-y-6 hover:border-[#F26513]/50 transition-colors">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider">
+                    <Radio className="w-3.5 h-3.5 animate-pulse" />
+                    <span>Nouveau • Lives depuis chez soi</span>
+                  </span>
+                  <span className="text-xs font-mono text-[#F26513] font-bold">
+                    5 000 FCFA / mois
+                  </span>
+                </div>
+
+                <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-white">
+                  Vendez en direct depuis votre maison ou boutique.
+                </h3>
+
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  Au <strong>Bénin</strong>, <strong>Cameroun</strong>, <strong>Côte d'Ivoire</strong> ou au <strong>Togo</strong> : lancez votre live TikTok ou Facebook. Transmettez votre lien sur OCD LIVE. Nos équipes vérifient votre flux de vente et le diffusent à toute l'Afrique.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-zinc-400">
+                  <div className="flex items-center gap-2 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
+                    <Clock className="w-4 h-4 text-[#F26513]" />
+                    <span>08h-11h & 18h-21h GMT</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
+                    <Globe2 className="w-4 h-4 text-emerald-400" />
+                    <span>Filtres par pays & rayons</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/lives-afrique"
+                  className="flex-1 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 text-center"
+                >
+                  <Radio className="w-4 h-4" />
+                  <span>Voir les direct en cours</span>
+                </Link>
+                <Link
+                  to="/lives-afrique"
+                  className="py-3.5 px-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 text-center"
+                >
+                  <span>Diffuser mon live</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Carte B : OCD SHOP (COMMANDES WHATSAPP 1-CLIC) */}
+            <div className="p-8 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col justify-between space-y-6 hover:border-[#F26513]/50 transition-colors">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F26513]/20 text-[#F26513] text-xs font-bold uppercase tracking-wider">
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>OCD Shop • Marketplace</span>
+                  </span>
+                  <span className="text-xs font-mono text-emerald-400 font-bold">
+                    Direct Producteurs
+                  </span>
+                </div>
+
+                <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-white">
+                  Les pépites des entrepreneurs africains à portée de clic.
+                </h3>
+
+                <p className="text-sm text-zinc-300 leading-relaxed">
+                  Piments et épices du Bénin, mode & chemises wax du Cameroun, cosmétiques bio de Côte d'Ivoire... Commandez en direct aux vendeurs sans intermédiaire par WhatsApp.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-zinc-400">
+                  <div className="flex items-center gap-2 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
+                    <Sparkles className="w-4 h-4 text-gold-400" />
+                    <span>Articles certifiés OCD</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-800/80">
+                    <Check className="w-4 h-4 text-emerald-400" />
+                    <span>1 Clic WhatsApp direct</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  to="/boutique"
+                  className="w-full py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95 text-center"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Accéder à la boutique OCD Shop</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
           </div>

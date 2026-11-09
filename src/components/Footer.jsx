@@ -40,6 +40,8 @@ export default function Footer({ settings }) {
             </h4>
             <ul className="space-y-2 text-sm text-zinc-400">
               <li><Link to="/" className="hover:text-[#F26513] transition-colors">Accueil</Link></li>
+              <li><Link to="/lives-afrique" className="hover:text-[#F26513] font-semibold transition-colors text-white">🔴 Directs Afrique (Vendeurs)</Link></li>
+              <li><Link to="/boutique" className="hover:text-[#F26513] font-semibold transition-colors text-white">🛍️ OCD Shop (Catalogue)</Link></li>
               <li><Link to="/reserver" className="hover:text-[#F26513] transition-colors">Réserver un live</Link></li>
               <li><Link to="/forfaits" className="hover:text-[#F26513] transition-colors">Nos forfaits</Link></li>
               <li><Link to="/comment-ca-marche" className="hover:text-[#F26513] transition-colors">Comment ça marche ?</Link></li>

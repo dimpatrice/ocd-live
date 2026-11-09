@@ -337,6 +337,51 @@ function serveStaticFile(res, filePath) {
   return true;
 }
 
+// Helper pour calculer le statut des créneaux de direct (Afrique / GMT)
+function getLiveSlotStatus() {
+  const now = new Date();
+  const dtf = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Africa/Lome',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+  });
+  const parts = dtf.formatToParts(now);
+  const hourPart = parts.find((p) => p.type === 'hour')?.value || '00';
+  const minutePart = parts.find((p) => p.type === 'minute')?.value || '00';
+  const lomeHour = Number(hourPart);
+  const lomeMinute = Number(minutePart);
+  const totalMinutes = lomeHour * 60 + lomeMinute;
+
+  let activeSlot = null;
+  let nextSlot = null;
+
+  // Créneau Matin : 08h00 - 11h00 GMT
+  // Créneau Soir : 18h00 - 21h00 GMT
+  if (totalMinutes >= 8 * 60 && totalMinutes < 11 * 60) {
+    activeSlot = { code: 'MATIN', label: 'Créneau Matin (08h00 - 11h00 GMT)', endsAt: '11:00 GMT' };
+  } else if (totalMinutes >= 18 * 60 && totalMinutes < 21 * 60) {
+    activeSlot = { code: 'SOIR', label: 'Créneau Soir (18h00 - 21h00 GMT)', endsAt: '21:00 GMT' };
+  }
+
+  if (!activeSlot) {
+    if (totalMinutes < 8 * 60) {
+      nextSlot = { code: 'MATIN', label: 'Créneau Matin (08h00 - 11h00 GMT)', startsAt: '08:00 GMT' };
+    } else if (totalMinutes < 18 * 60) {
+      nextSlot = { code: 'SOIR', label: 'Créneau Soir (18h00 - 21h00 GMT)', startsAt: '18:00 GMT' };
+    } else {
+      nextSlot = { code: 'MATIN', label: 'Demain Matin (08h00 - 11h00 GMT)', startsAt: '08:00 GMT' };
+    }
+  }
+
+  return {
+    isLiveNow: !!activeSlot,
+    activeSlot,
+    nextSlot,
+    currentTimeLome: `${String(lomeHour).padStart(2, '0')}:${String(lomeMinute).padStart(2, '0')} GMT`
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === 'OPTIONS') {
@@ -817,6 +862,153 @@ const server = http.createServer(async (req, res) => {
       });
 
       return sendJson(res, 201, { message: 'Votre message a bien été envoyé à l\'équipe Boovan Group.' });
+    }
+
+    // -------------------------------------------------------------------------
+    // LIVES PANAFRICAINS DEPUIS CHEZ SOI (Flux vendeurs indépendants)
+    // -------------------------------------------------------------------------
+    if (method === 'GET' && pathname === '/api/public/community-lives') {
+      const { country, category, slot } = query;
+      const conditions = ["status = 'APPROVED'"];
+      const params = [];
+
+      if (country && country !== 'ALL') {
+        conditions.push('country = ?');
+        params.push(country);
+      }
+      if (category && category !== 'ALL') {
+        conditions.push('category = ?');
+        params.push(category);
+      }
+      if (slot && slot !== 'ALL') {
+        conditions.push('time_slot = ?');
+        params.push(slot);
+      }
+
+      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      const lives = queryAll(
+        `SELECT * FROM community_lives ${whereClause} ORDER BY id DESC`,
+        params
+      );
+
+      const allCountriesRows = queryAll(`SELECT DISTINCT country FROM community_lives WHERE country IS NOT NULL AND country != ''`);
+      const allCategoriesRows = queryAll(`SELECT DISTINCT category FROM community_lives WHERE category IS NOT NULL AND category != ''`);
+      const totalCount = queryOne(`SELECT COUNT(*) as c FROM community_lives WHERE status = 'APPROVED'`)?.c || 0;
+
+      return sendJson(res, 200, {
+        lives,
+        slotStatus: getLiveSlotStatus(),
+        countries: allCountriesRows.map((r) => r.country),
+        categories: allCategoriesRows.map((r) => r.category),
+        totalApproved: totalCount
+      });
+    }
+
+    if (method === 'POST' && pathname === '/api/public/community-lives') {
+      const body = await readJsonBody(req);
+      const {
+        seller_name,
+        business_name,
+        country,
+        category,
+        live_url,
+        whatsapp,
+        phone,
+        time_slot,
+        description
+      } = body;
+
+      if (!seller_name || !country || !category || !live_url || !whatsapp) {
+        return sendJson(res, 400, {
+          error: 'Veuillez remplir votre nom, pays, catégorie, lien de live et WhatsApp.'
+        });
+      }
+
+      let platform = 'TIKTOK';
+      const urlLower = String(live_url).toLowerCase();
+      if (urlLower.includes('facebook') || urlLower.includes('fb.watch') || urlLower.includes('fb.me')) {
+        platform = 'FACEBOOK';
+      } else if (urlLower.includes('instagram')) {
+        platform = 'INSTAGRAM';
+      } else if (urlLower.includes('youtube') || urlLower.includes('youtu.be')) {
+        platform = 'YOUTUBE';
+      }
+
+      const result = runSql(
+        `INSERT INTO community_lives (
+          seller_name, business_name, country, category, live_url, platform,
+          whatsapp, phone, time_slot, description, status, has_active_subscription, created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', 1, datetime('now'))`,
+        [
+          String(seller_name).trim(),
+          String(business_name || seller_name).trim(),
+          String(country).trim(),
+          String(category).trim(),
+          String(live_url).trim(),
+          platform,
+          String(whatsapp).trim(),
+          String(phone || whatsapp).trim(),
+          time_slot === 'SOIR' ? 'SOIR' : 'MATIN',
+          description ? String(description).trim() : ''
+        ]
+      );
+
+      const created = queryOne(`SELECT * FROM community_lives WHERE id = ?`, [result.lastInsertRowid]);
+
+      await dispatchNotification({
+        type: 'COMMUNITY_LIVE_SUBMITTED',
+        title: `Nouveau Live Vendeur soumis : ${created.seller_name} (${created.country})`,
+        recipientEmail: null,
+        subject: `NOUVEAU LIVE À VÉRIFIER — ${created.business_name} (${created.country})`,
+        bodyText: `Un entrepreneur vient de soumettre son live en direct depuis chez lui :\n\nVendeur : ${created.seller_name}\nBoutique : ${created.business_name}\nPays : ${created.country}\nCatégorie : ${created.category}\nCréneau : ${created.time_slot} (08h-11h ou 18h-21h GMT)\nLien Live : ${created.live_url}\nPlateforme : ${created.platform}\nWhatsApp : ${created.whatsapp}\nTéléphone : ${created.phone}\nDescription : ${created.description || 'Non renseignée'}\n\nL'équipe de modération Boovan Group peut valider ou rejeter ce live depuis le back-office OCD LIVE.`,
+        relatedReference: `LIVE-${created.id}`
+      });
+
+      return sendJson(res, 201, {
+        message: 'Votre lien de direct a été soumis avec succès ! Notre équipe vérifie votre flux pendant le créneau pour validation.',
+        live: created
+      });
+    }
+
+    const liveClickMatch = pathname.match(/^\/api\/public\/community-lives\/(\d+)\/click$/);
+    if (method === 'POST' && liveClickMatch) {
+      const liveId = Number(liveClickMatch[1]);
+      runSql(`UPDATE community_lives SET view_count = view_count + 1 WHERE id = ?`, [liveId]);
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // -------------------------------------------------------------------------
+    // OCD SHOP (Boutique & Produits Certifiés des Entrepreneurs Africains)
+    // -------------------------------------------------------------------------
+    if (method === 'GET' && pathname === '/api/public/shop') {
+      const { country, category } = query;
+      const conditions = ['in_stock = 1'];
+      const params = [];
+
+      if (country && country !== 'ALL') {
+        conditions.push('country = ?');
+        params.push(country);
+      }
+      if (category && category !== 'ALL') {
+        conditions.push('category = ?');
+        params.push(category);
+      }
+
+      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      const products = queryAll(
+        `SELECT * FROM shop_products ${whereClause} ORDER BY id DESC`,
+        params
+      );
+
+      const allCountries = queryAll(`SELECT DISTINCT country FROM shop_products WHERE country IS NOT NULL AND country != ''`).map((r) => r.country);
+      const allCategories = queryAll(`SELECT DISTINCT category FROM shop_products WHERE category IS NOT NULL AND category != ''`).map((r) => r.category);
+
+      return sendJson(res, 200, {
+        products,
+        countries: allCountries,
+        categories: allCategories,
+        totalProducts: products.length
+      });
     }
 
     // =========================================================================
@@ -1385,6 +1577,118 @@ const server = http.createServer(async (req, res) => {
           status: resNotice.status,
           recipient
         });
+      }
+
+      // =======================================================================
+      // ADMINISTRATION DES LIVES PANAFRICAINS (Modération & Validation)
+      // =======================================================================
+      if (method === 'GET' && pathname === '/api/admin/community-lives') {
+        const lives = queryAll(`SELECT * FROM community_lives ORDER BY id DESC`);
+        return sendJson(res, 200, { lives });
+      }
+
+      const adminLiveMatch = pathname.match(/^\/api\/admin\/community-lives\/(\d+)$/);
+      if (method === 'PUT' && adminLiveMatch) {
+        const id = Number(adminLiveMatch[1]);
+        const { status, has_active_subscription } = await readJsonBody(req);
+        runSql(
+          `UPDATE community_lives SET
+             status = COALESCE(?, status),
+             has_active_subscription = COALESCE(?, has_active_subscription),
+             approved_at = CASE WHEN ? = 'APPROVED' THEN datetime('now') ELSE approved_at END
+           WHERE id = ?`,
+          [
+            status || null,
+            has_active_subscription !== undefined ? (has_active_subscription ? 1 : 0) : null,
+            status || null,
+            id
+          ]
+        );
+        const updated = queryOne(`SELECT * FROM community_lives WHERE id = ?`, [id]);
+        return sendJson(res, 200, { message: 'Live mis à jour avec succès.', live: updated });
+      }
+
+      if (method === 'DELETE' && adminLiveMatch) {
+        const id = Number(adminLiveMatch[1]);
+        runSql(`DELETE FROM community_lives WHERE id = ?`, [id]);
+        return sendJson(res, 200, { message: 'Live communautaire supprimé.' });
+      }
+
+      // =======================================================================
+      // ADMINISTRATION DU OCD SHOP (Produits & Catalogues)
+      // =======================================================================
+      if (method === 'GET' && pathname === '/api/admin/shop') {
+        const products = queryAll(`SELECT * FROM shop_products ORDER BY id DESC`);
+        return sendJson(res, 200, { products });
+      }
+
+      if (method === 'POST' && pathname === '/api/admin/shop') {
+        const p = await readJsonBody(req);
+        if (!p.title || !p.seller_name || !p.whatsapp || p.price_fcfa === undefined) {
+          return sendJson(res, 400, { error: 'Titre, nom vendeur, WhatsApp et tarif en FCFA requis.' });
+        }
+        const ins = runSql(
+          `INSERT INTO shop_products (title, category, country, seller_name, whatsapp, phone, price_fcfa, description, image_url, badge, in_stock, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+          [
+            String(p.title).trim(),
+            String(p.category || 'Général').trim(),
+            String(p.country || 'Togo').trim(),
+            String(p.seller_name).trim(),
+            String(p.whatsapp).trim(),
+            String(p.phone || p.whatsapp).trim(),
+            Number(p.price_fcfa || 0),
+            String(p.description || '').trim(),
+            String(p.image_url || '/brand/ocd-plateau-afrique.jpg').trim(),
+            p.badge ? String(p.badge).trim() : null,
+            p.in_stock !== false ? 1 : 0
+          ]
+        );
+        const created = queryOne(`SELECT * FROM shop_products WHERE id = ?`, [ins.lastInsertRowid]);
+        return sendJson(res, 201, { message: 'Produit ajouté au catalogue OCD Shop.', product: created });
+      }
+
+      const adminShopMatch = pathname.match(/^\/api\/admin\/shop\/(\d+)$/);
+      if (method === 'PUT' && adminShopMatch) {
+        const id = Number(adminShopMatch[1]);
+        const p = await readJsonBody(req);
+        runSql(
+          `UPDATE shop_products SET
+             title = COALESCE(?, title),
+             category = COALESCE(?, category),
+             country = COALESCE(?, country),
+             seller_name = COALESCE(?, seller_name),
+             whatsapp = COALESCE(?, whatsapp),
+             phone = COALESCE(?, phone),
+             price_fcfa = COALESCE(?, price_fcfa),
+             description = COALESCE(?, description),
+             image_url = COALESCE(?, image_url),
+             badge = ?,
+             in_stock = COALESCE(?, in_stock)
+           WHERE id = ?`,
+          [
+            p.title ? String(p.title).trim() : null,
+            p.category ? String(p.category).trim() : null,
+            p.country ? String(p.country).trim() : null,
+            p.seller_name ? String(p.seller_name).trim() : null,
+            p.whatsapp ? String(p.whatsapp).trim() : null,
+            p.phone ? String(p.phone).trim() : null,
+            p.price_fcfa !== undefined ? Number(p.price_fcfa) : null,
+            p.description !== undefined ? String(p.description).trim() : null,
+            p.image_url ? String(p.image_url).trim() : null,
+            p.badge !== undefined ? (p.badge ? String(p.badge).trim() : null) : null,
+            p.in_stock !== undefined ? (p.in_stock ? 1 : 0) : null,
+            id
+          ]
+        );
+        const updated = queryOne(`SELECT * FROM shop_products WHERE id = ?`, [id]);
+        return sendJson(res, 200, { message: 'Produit mis à jour avec succès.', product: updated });
+      }
+
+      if (method === 'DELETE' && adminShopMatch) {
+        const id = Number(adminShopMatch[1]);
+        runSql(`DELETE FROM shop_products WHERE id = ?`, [id]);
+        return sendJson(res, 200, { message: 'Produit retiré du catalogue OCD Shop.' });
       }
     }
 

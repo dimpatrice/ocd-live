@@ -14,7 +14,9 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/', label: 'Accueil' },
-    { to: '/forfaits', label: 'Nos forfaits' },
+    { to: '/lives-afrique', label: 'Directs Afrique', isLive: true },
+    { to: '/boutique', label: 'OCD Shop' },
+    { to: '/forfaits', label: 'Plateau & Forfaits' },
     { to: '/comment-ca-marche', label: 'Comment ça marche' },
     { to: '/a-propos', label: 'À propos' },
     { to: '/recrutement', label: 'Recrutement' },
@@ -37,21 +39,24 @@ export default function Navbar() {
         </Link>
 
         {/* Liens de navigation épurés */}
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-6">
           {navLinks.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${
+                `text-sm font-medium transition-colors flex items-center gap-1.5 ${
                   isActive
                     ? 'text-[#F26513] font-semibold'
                     : 'text-zinc-600 hover:text-zinc-900'
                 }`
               }
             >
-              {item.label}
+              {item.isLive && (
+                <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
+              )}
+              <span>{item.label}</span>
             </NavLink>
           ))}
         </nav>
@@ -100,14 +105,24 @@ export default function Navbar() {
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
-                `block px-3 py-2.5 rounded-lg text-sm font-medium ${
+                `flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium ${
                   isActive
                     ? 'bg-orange-50 text-[#F26513] font-semibold'
                     : 'text-zinc-700 hover:bg-zinc-50'
                 }`
               }
             >
-              {item.label}
+              <span className="flex items-center gap-2">
+                {item.isLive && (
+                  <span className="w-2 h-2 rounded-full bg-red-600 animate-ping inline-block" />
+                )}
+                <span>{item.label}</span>
+              </span>
+              {item.isLive && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 uppercase">
+                  En direct
+                </span>
+              )}
             </NavLink>
           ))}
           <div className="pt-3 border-t border-zinc-100 flex flex-col gap-2">

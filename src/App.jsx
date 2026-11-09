@@ -13,6 +13,8 @@ import RecruitmentPage from './pages/RecruitmentPage';
 import ContactPage from './pages/ContactPage';
 import TrackBookingPage from './pages/TrackBookingPage';
 import AdminPage from './pages/AdminPage';
+import CommunityLivesPage from './pages/CommunityLivesPage';
+import ShopPage from './pages/ShopPage';
 
 export default function App() {
   const router = useRouter();
@@ -71,6 +73,10 @@ export default function App() {
     pageView = <ContactPage settings={config.settings} />;
   } else if (path === '/suivi-reservation') {
     pageView = <TrackBookingPage settings={config.settings} />;
+  } else if (path === '/lives-afrique' || path === '/directs') {
+    pageView = <CommunityLivesPage settings={config.settings} />;
+  } else if (path === '/boutique' || path === '/shop') {
+    pageView = <ShopPage settings={config.settings} />;
   } else if (path === '/admin') {
     pageView = <AdminPage onConfigUpdated={fetchPublicConfig} />;
   } else {

@@ -27,7 +27,10 @@ import {
   Phone,
   Globe2,
   FileText,
-  RefreshCw
+  RefreshCw,
+  ShoppingBag,
+  ExternalLink,
+  ShieldCheck
 } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '../data/media';
 import { fetchJson } from '../utils/api';
@@ -50,6 +53,24 @@ export default function AdminPage({ onConfigUpdated }) {
   const [applications, setApplications] = useState([]);
   const [notificationsData, setNotificationsData] = useState({ notifications: [], contacts: [] });
   const [settingsForm, setSettingsForm] = useState({});
+
+  // Lives Panafricains & OCD Shop
+  const [communityLives, setCommunityLives] = useState([]);
+  const [shopProducts, setShopProducts] = useState([]);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [newProductForm, setNewProductForm] = useState({
+    title: '',
+    category: 'Nourriture & Restauration',
+    country: 'Togo',
+    seller_name: '',
+    whatsapp: '',
+    phone: '',
+    price_fcfa: 5000,
+    description: '',
+    image_url: '',
+    badge: 'NOUVEAU',
+    in_stock: true
+  });
 
   const [statusFeedback, setStatusFeedback] = useState('');
 
@@ -144,14 +165,16 @@ export default function AdminPage({ onConfigUpdated }) {
   async function loadAllAdminData() {
     if (!token) return;
     try {
-      const [dashRes, resList, schedRes, pkgRes, appRes, notifRes, pubCfg] = await Promise.all([
+      const [dashRes, resList, schedRes, pkgRes, appRes, notifRes, pubCfg, livesRes, shopRes] = await Promise.all([
         fetchJson('/api/admin/dashboard', { headers: authHeaders() }),
         fetchJson('/api/admin/reservations', { headers: authHeaders() }),
         fetchJson('/api/admin/schedule', { headers: authHeaders() }),
         fetchJson('/api/admin/packages', { headers: authHeaders() }),
         fetchJson('/api/admin/applications', { headers: authHeaders() }),
         fetchJson('/api/admin/notifications', { headers: authHeaders() }),
-        fetchJson('/api/public/config')
+        fetchJson('/api/public/config'),
+        fetchJson('/api/admin/community-lives', { headers: authHeaders() }).catch(() => ({ lives: [] })),
+        fetchJson('/api/admin/shop', { headers: authHeaders() }).catch(() => ({ products: [] }))
       ]);
 
       if (dashRes.kpis) setDashboardData(dashRes);
@@ -161,6 +184,8 @@ export default function AdminPage({ onConfigUpdated }) {
       if (appRes.applications) setApplications(appRes.applications);
       if (notifRes.notifications) setNotificationsData(notifRes);
       if (pubCfg.settings) setSettingsForm(pubCfg.settings);
+      if (livesRes.lives) setCommunityLives(livesRes.lives);
+      if (shopRes.products) setShopProducts(shopRes.products);
     } catch (e) {
       console.error('Erreur chargement back-office:', e);
     }
@@ -460,6 +485,107 @@ export default function AdminPage({ onConfigUpdated }) {
     }
   }
 
+  // Actions Lives Panafricains
+  async function handleUpdateLiveStatus(liveId, newStatus) {
+    try {
+      await fetchJson(`/api/admin/community-lives/${liveId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ status: newStatus })
+      });
+      showToast(`Statut du live mis à jour : ${newStatus}`);
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleToggleLiveSubscription(liveId, currentSub) {
+    try {
+      await fetchJson(`/api/admin/community-lives/${liveId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ has_active_subscription: !currentSub })
+      });
+      showToast('Abonnement 5000 F mis à jour.');
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleDeleteLive(liveId) {
+    if (!window.confirm('Voulez-vous vraiment supprimer ce direct ?')) return;
+    try {
+      await fetchJson(`/api/admin/community-lives/${liveId}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      showToast('Live supprimé.');
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  // Actions OCD Shop
+  async function handleCreateShopProduct(e) {
+    e.preventDefault();
+    try {
+      await fetchJson('/api/admin/shop', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify(newProductForm)
+      });
+      showToast('Article ajouté au catalogue OCD Shop.');
+      setShowAddProductModal(false);
+      setNewProductForm({
+        title: '',
+        category: 'Nourriture & Restauration',
+        country: 'Togo',
+        seller_name: '',
+        whatsapp: '',
+        phone: '',
+        price_fcfa: 5000,
+        description: '',
+        image_url: '',
+        badge: 'NOUVEAU',
+        in_stock: true
+      });
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleToggleProductStock(productId, currentStock) {
+    try {
+      await fetchJson(`/api/admin/shop/${productId}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ in_stock: currentStock ? 0 : 1 })
+      });
+      showToast('Disponibilité du produit mise à jour.');
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleDeleteProduct(productId) {
+    if (!window.confirm('Voulez-vous retirer ce produit du catalogue ?')) return;
+    try {
+      await fetchJson(`/api/admin/shop/${productId}`, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      showToast('Produit retiré.');
+      await loadAllAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   // Écran de connexion Administrateur
   if (!adminUser) {
     return (
@@ -588,6 +714,12 @@ export default function AdminPage({ onConfigUpdated }) {
           {[
             { id: 'dashboard', label: 'Vue d\'ensemble & KPI', icon: LayoutDashboard },
             { id: 'reservations', label: `Réservations (${reservations.length})`, icon: FileText },
+            {
+              id: 'community_lives',
+              label: `Modération Lives (${communityLives.filter((l) => l.status === 'PENDING').length} attente)`,
+              icon: Radio
+            },
+            { id: 'shop', label: `OCD Shop (${shopProducts.length})`, icon: ShoppingBag },
             { id: 'calendar', label: 'Gestion du Calendrier', icon: CalendarIcon },
             { id: 'packages', label: 'Forfaits & Options', icon: Layers },
             { id: 'recruitment', label: `Recrutement (${applications.length})`, icon: Users },
@@ -1828,6 +1960,443 @@ export default function AdminPage({ onConfigUpdated }) {
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            ONGLET LIVES PANAFRICAINS : MODÉRATION & VALIDATION EN DIRECT
+        =================================================================== */}
+        {activeTab === 'community_lives' && (
+          <div className="space-y-6">
+            <div className="p-7 rounded-3xl bg-anthracite border border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-[#F26513]">
+                  DIFFUSION COMMERCIALE PANAFRICAINE • 5 000 FCFA / MOIS
+                </span>
+                <h2 className="font-serif text-3xl font-bold text-white mt-1">
+                  Modération des Lives depuis chez soi
+                </h2>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Créneaux : Matin (08h00 - 11h00 GMT) & Soir (18h00 - 21h00 GMT). Vérifiez que le vendeur présente des produits, puis validez pour affichage public.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-mono font-bold">
+                  {communityLives.filter((l) => l.status === 'PENDING').length} en attente
+                </span>
+                <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold">
+                  {communityLives.filter((l) => l.status === 'APPROVED').length} en ligne
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {communityLives.length === 0 ? (
+                <div className="p-12 text-center rounded-3xl bg-anthracite border border-white/10 text-zinc-400">
+                  Aucun live communautaire enregistré pour le moment.
+                </div>
+              ) : (
+                communityLives.map((live) => (
+                  <div
+                    key={live.id}
+                    className="p-6 rounded-3xl bg-anthracite border border-white/10 hover:border-white/20 transition-all space-y-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="px-3 py-1 rounded-lg bg-obsidian text-white text-xs font-bold font-mono">
+                          {live.country}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs font-mono">
+                          {live.category}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs font-mono">
+                          Créneau : {live.time_slot === 'MATIN' ? '☀️ 08h-11h' : '🌙 18h-21h'}
+                        </span>
+                      </div>
+
+                      {/* Statuts */}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-bold font-mono ${
+                            live.status === 'APPROVED'
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              : live.status === 'PENDING'
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              : live.status === 'REJECTED'
+                              ? 'bg-red-500/20 text-red-300 border border-red-500/40'
+                              : 'bg-zinc-700 text-zinc-300'
+                          }`}
+                        >
+                          {live.status === 'APPROVED' && '🟢 EN LIGNE (VALIDÉ)'}
+                          {live.status === 'PENDING' && '🟡 EN ATTENTE MODÉRATION'}
+                          {live.status === 'REJECTED' && '🔴 REJETÉ'}
+                          {live.status === 'ENDED' && '⚪ TERMINÉ'}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleLiveSubscription(live.id, live.has_active_subscription)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-mono border transition-colors ${
+                            live.has_active_subscription
+                              ? 'bg-gold-400/20 border-gold-400/50 text-gold-300'
+                              : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+                          }`}
+                        >
+                          {live.has_active_subscription ? '⭐ Abonnement 5 000 F Actif' : 'Abonnement Inactif'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                      <div>
+                        <span className="text-zinc-500 block">Vendeur / Marque :</span>
+                        <strong className="text-white text-sm">{live.business_name}</strong>
+                        <span className="text-zinc-400 block">({live.seller_name})</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500 block">WhatsApp & Téléphone :</span>
+                        <a href={`https://wa.me/${(live.whatsapp || '').replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline block font-mono">
+                          {live.whatsapp}
+                        </a>
+                        <span className="text-zinc-400 font-mono">{live.phone}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500 block">Plateforme & Clics :</span>
+                        <span className="text-white font-mono">{live.platform}</span>
+                        <span className="text-zinc-400 block font-mono">👁️ {live.view_count || 0} clics générés</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500 block">Date de soumission :</span>
+                        <span className="text-zinc-300 font-mono">{live.created_at}</span>
+                      </div>
+                    </div>
+
+                    {live.description && (
+                      <p className="p-3 rounded-xl bg-obsidian border border-white/5 text-xs text-zinc-300 italic">
+                        "{live.description}"
+                      </p>
+                    )}
+
+                    {/* Actions de modération Boovan Group */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+                      <a
+                        href={live.live_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Ouvrir & Vérifier le Live ({live.platform})</span>
+                      </a>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {live.status !== 'APPROVED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'APPROVED')}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Valider & Diffuser sur le site</span>
+                          </button>
+                        )}
+
+                        {live.status !== 'REJECTED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'REJECTED')}
+                            className="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-1.5"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>Rejeter</span>
+                          </button>
+                        )}
+
+                        {live.status === 'APPROVED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'ENDED')}
+                            className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-display font-bold text-xs uppercase tracking-wider"
+                          >
+                            <span>Marquer comme Terminé</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLive(live.id)}
+                          className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            ONGLET OCD SHOP : GESTION DU CATALOGUE PRODUITS
+        =================================================================== */}
+        {activeTab === 'shop' && (
+          <div className="space-y-6">
+            <div className="p-7 rounded-3xl bg-anthracite border border-white/10 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-widest text-[#F26513]">
+                  MARKETPLACE PANAFRICAINE • PRODUITS CERTIFIÉS
+                </span>
+                <h2 className="font-serif text-3xl font-bold text-white mt-1">
+                  Catalogue OCD Shop ({shopProducts.length} articles)
+                </h2>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Les acheteurs peuvent commander directement auprès de chaque vendeur en un clic WhatsApp.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAddProductModal(true)}
+                className="px-5 py-3 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Ajouter un article</span>
+              </button>
+            </div>
+
+            {/* Grille des articles Shop */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shopProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-3xl bg-anthracite border border-white/10 overflow-hidden flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="relative h-48 bg-obsidian overflow-hidden">
+                      <img
+                        src={p.image_url || '/brand/ocd-plateau-afrique.jpg'}
+                        alt={p.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/brand/ocd-plateau-afrique.jpg';
+                        }}
+                      />
+                      {p.badge && (
+                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#F26513] text-white text-[10px] font-black uppercase">
+                          {p.badge}
+                        </span>
+                      )}
+                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/70 text-white text-xs font-mono">
+                        {p.country}
+                      </span>
+                    </div>
+
+                    <div className="p-5 space-y-2.5">
+                      <span className="text-[11px] font-mono text-gold-400 uppercase">
+                        {p.category}
+                      </span>
+                      <h3 className="font-display font-bold text-base text-white line-clamp-2">
+                        {p.title}
+                      </h3>
+                      <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+                        {p.description}
+                      </p>
+                      <div className="pt-2 flex items-baseline justify-between border-t border-white/10">
+                        <span className="font-display font-black text-xl text-gold-300">
+                          {p.price_fcfa.toLocaleString('fr-FR')} FCFA
+                        </span>
+                        <span className="text-xs text-zinc-400">
+                          Par {p.seller_name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-obsidian/60 border-t border-white/10 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleProductStock(p.id, p.in_stock)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold ${
+                        p.in_stock
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                      }`}
+                    >
+                      {p.in_stock ? 'En Stock' : 'Épuisé'}
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`https://wa.me/${(p.whatsapp || '').replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600/30 text-emerald-300 text-xs font-mono hover:bg-emerald-600/50"
+                      >
+                        WhatsApp
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(p.id)}
+                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal d'ajout de produit Shop */}
+            {showAddProductModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+                <div className="bg-anthracite border border-white/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 my-8">
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                    <h3 className="font-serif text-xl font-bold text-white">
+                      Ajouter un article au catalogue OCD Shop
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddProductModal(false)}
+                      className="text-zinc-400 hover:text-white text-2xl font-bold"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateShopProduct} className="space-y-3.5 text-xs">
+                    <div>
+                      <label className="block text-zinc-300 mb-1">Titre de l'article *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="ex: Chemise Homme Lin Blanc & Broderie"
+                        value={newProductForm.title}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, title: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-zinc-300 mb-1">Prix en FCFA *</label>
+                        <input
+                          type="number"
+                          required
+                          value={newProductForm.price_fcfa}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, price_fcfa: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-zinc-300 mb-1">Badge visuel</label>
+                        <input
+                          type="text"
+                          placeholder="ex: EN DIRECT, POPULAIRE..."
+                          value={newProductForm.badge}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, badge: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-zinc-300 mb-1">Catégorie *</label>
+                        <select
+                          value={newProductForm.category}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                        >
+                          <option value="Nourriture & Restauration">Nourriture & Épices</option>
+                          <option value="Mode & Habits">Mode & Habits</option>
+                          <option value="Beauté & Cosmétique">Beauté & Cosmétique</option>
+                          <option value="Électronique & High-Tech">Matériel & High-Tech</option>
+                          <option value="Artisanat & Déco">Artisanat & Déco</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-300 mb-1">Pays d'origine *</label>
+                        <select
+                          value={newProductForm.country}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, country: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                        >
+                          <option value="Bénin">🇧🇯 Bénin</option>
+                          <option value="Cameroun">🇨🇲 Cameroun</option>
+                          <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+                          <option value="Togo">🇹🇬 Togo</option>
+                          <option value="Sénégal">🇸🇳 Sénégal</option>
+                          <option value="Gabon">🇬🇦 Gabon</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-zinc-300 mb-1">Nom du vendeur / Marque *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="ex: Maman Christine"
+                          value={newProductForm.seller_name}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, seller_name: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-zinc-300 mb-1">WhatsApp commandes *</label>
+                        <input
+                          type="tel"
+                          required
+                          placeholder="+228 90 00 00 00"
+                          value={newProductForm.whatsapp}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, whatsapp: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-300 mb-1">Lien de la photo produit (URL)</label>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={newProductForm.image_url}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, image_url: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-300 mb-1">Description courte du produit</label>
+                      <textarea
+                        rows={2}
+                        value={newProductForm.description}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      />
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        className="w-full py-3.5 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider shadow-lg"
+                      >
+                        Enregistrer l'article dans le catalogue
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

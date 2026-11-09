@@ -92,6 +92,17 @@ export async function initDatabase() {
     );
   }
 
+  // Vérifier et alimenter les démos de lives communautaires et de shop si vides
+  const livesCount = queryOne("SELECT COUNT(*) as count FROM community_lives");
+  if (!livesCount || Number(livesCount.count) === 0) {
+    seedCommunityLives();
+  }
+
+  const shopCount = queryOne("SELECT COUNT(*) as count FROM shop_products");
+  if (!shopCount || Number(shopCount.count) === 0) {
+    seedShopProducts();
+  }
+
   return dbInstance;
 }
 
@@ -419,6 +430,164 @@ function seedInitialData() {
       `INSERT INTO weekly_schedule (day_of_week, day_name, is_open, slots_json)
        VALUES (?, ?, ?, ?)`,
       [d.day, d.name, d.isOpen, d.slots],
+    );
+  }
+
+  // 7. Initialisation des démos de Lives Autonomes (Bénin, Cameroun, Côte d'Ivoire, Togo)
+  seedCommunityLives();
+
+  // 8. Produits initiaux du OCD Shop (Catalogue direct vendeur certifié)
+  seedShopProducts();
+}
+
+function seedCommunityLives() {
+  const initialCommunityLives = [
+    {
+      seller_name: "Maman Christine",
+      business_name: "Saveurs d'Abomey & Épices Bio",
+      country: "Bénin",
+      category: "Nourriture & Restauration",
+      live_url: "https://www.tiktok.com/@bovann",
+      platform: "TIKTOK",
+      whatsapp: "+229 97 00 11 22",
+      phone: "+229 97 00 11 22",
+      time_slot: "MATIN",
+      description: "Direct depuis Cotonou : dégustation et vente de nos sauces prêtes à l'emploi et piments doux.",
+      status: "APPROVED"
+    },
+    {
+      seller_name: "Yannick & Fils",
+      business_name: "Kamer Prêt-à-Porter & Wax Chic",
+      country: "Cameroun",
+      category: "Mode & Habits",
+      live_url: "https://www.facebook.com/Bovannofficiel",
+      platform: "FACEBOOK",
+      whatsapp: "+237 690 12 34 56",
+      phone: "+237 690 12 34 56",
+      time_slot: "MATIN",
+      description: "Direct depuis Akwa Douala : arrivage de chemises en lin et ensembles brodés pour hommes.",
+      status: "APPROVED"
+    },
+    {
+      seller_name: "Aïcha Traoré",
+      business_name: "Karité Pur & Beauté Bio d'Afrique",
+      country: "Côte d'Ivoire",
+      category: "Beauté & Cosmétique",
+      live_url: "https://www.tiktok.com/@bovann",
+      platform: "TIKTOK",
+      whatsapp: "+225 07 12 34 56",
+      phone: "+225 07 12 34 56",
+      time_slot: "SOIR",
+      description: "Présentation des savons noirs artisanaux et beurres corporels depuis Abidjan.",
+      status: "APPROVED"
+    },
+    {
+      seller_name: "Éric Lawson",
+      business_name: "Lomé High-Tech & Accessoires Pro",
+      country: "Togo",
+      category: "Électronique & High-Tech",
+      live_url: "https://www.tiktok.com/@bovann",
+      platform: "TIKTOK",
+      whatsapp: "+228 90 22 33 44",
+      phone: "+228 90 22 33 44",
+      time_slot: "SOIR",
+      description: "En direct depuis notre boutique à Lomé : micros cravates sans fil et éclairages LED pour créateurs.",
+      status: "APPROVED"
+    }
+  ];
+
+  for (const live of initialCommunityLives) {
+    runSql(
+      `INSERT INTO community_lives (
+        seller_name, business_name, country, category, live_url, platform,
+        whatsapp, phone, time_slot, description, status, has_active_subscription, approved_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'))`,
+      [
+        live.seller_name,
+        live.business_name,
+        live.country,
+        live.category,
+        live.live_url,
+        live.platform,
+        live.whatsapp,
+        live.phone,
+        live.time_slot,
+        live.description,
+        live.status
+      ]
+    );
+  }
+}
+
+function seedShopProducts() {
+  const initialShopProducts = [
+    {
+      title: "Piment Pur & Épices d'Abomey (Pack Découverte)",
+      category: "Nourriture & Restauration",
+      country: "Bénin",
+      seller_name: "Maman Christine",
+      whatsapp: "+229 97 00 11 22",
+      phone: "+229 97 00 11 22",
+      price_fcfa: 7500,
+      description: "Bocal en verre hermétique 250g préparé artisanalement sans conservateur chimique.",
+      image_url: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80",
+      badge: "EN LIVE AUJOURD'HUI"
+    },
+    {
+      title: "Chemise Homme Wax Royal & Lin Blanc",
+      category: "Mode & Habits",
+      country: "Cameroun",
+      seller_name: "Kamer Wax Chic",
+      whatsapp: "+237 690 12 34 56",
+      phone: "+237 690 12 34 56",
+      price_fcfa: 18000,
+      description: "Coupe ajustée, finitions premium cousues main à Douala. Disponible en tailles M, L, XL, XXL.",
+      image_url: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=800&q=80",
+      badge: "POPULAIRE"
+    },
+    {
+      title: "Kit Micro Cravate Double Sans Fil (Type-C & iPhone)",
+      category: "Électronique & High-Tech",
+      country: "Togo",
+      seller_name: "Lomé High-Tech",
+      whatsapp: "+228 90 22 33 44",
+      phone: "+228 90 22 33 44",
+      price_fcfa: 15000,
+      description: "Réduction active du bruit ambiant, idéal pour faire vos lives Facebook et TikTok sans bruit de fond.",
+      image_url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+      badge: "CERTIFIÉ OCD"
+    },
+    {
+      title: "Baume Corporel Karité Brut & Cacao Bio (500ml)",
+      category: "Beauté & Cosmétique",
+      country: "Côte d'Ivoire",
+      seller_name: "Aïcha Beauté",
+      whatsapp: "+225 07 12 34 56",
+      phone: "+225 07 12 34 56",
+      price_fcfa: 6000,
+      description: "100% pur beurre végétal non blanchi, nourrit intensément et régénère les peaux sèches.",
+      image_url: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?auto=format&fit=crop&w=800&q=80",
+      badge: "PRODUIT NATUREL"
+    }
+  ];
+
+  for (const prod of initialShopProducts) {
+    runSql(
+      `INSERT INTO shop_products (
+        title, category, country, seller_name, whatsapp, phone, price_fcfa, description, image_url, badge, in_stock
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [
+        prod.title,
+        prod.category,
+        prod.country,
+        prod.seller_name,
+        prod.whatsapp,
+        prod.phone,
+        prod.price_fcfa,
+        prod.description,
+        prod.image_url,
+        prod.badge
+      ]
     );
   }
 }
