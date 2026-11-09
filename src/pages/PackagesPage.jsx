@@ -10,9 +10,10 @@ export default function PackagesPage({ packages = [], addons = [] }) {
         {/* En-tête direct et vivant */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
           <div className="max-w-2xl space-y-2">
-            <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-              Tarifs & Forfaits en FCFA
-            </span>
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+              <span className="h-px w-5 bg-[#F26513] inline-block" />
+              <span>TARIFS & FORFAITS OFFICIELS EN FCFA</span>
+            </div>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-950">
               Forfaits de diffusion OCD LIVE
             </h1>

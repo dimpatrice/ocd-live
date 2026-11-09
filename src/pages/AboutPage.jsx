@@ -10,9 +10,10 @@ export default function AboutPage() {
         {/* Présentation principale avec photo du promoteur Bovann */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-4">
-            <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-              Vision & Équipe
-            </span>
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+              <span className="h-px w-5 bg-[#F26513] inline-block" />
+              <span>BOOVAN GROUP • DIRECTION & VISION</span>
+            </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-950 leading-tight">
               Une infrastructure média au service des commerçants africains.

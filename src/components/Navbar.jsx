@@ -63,10 +63,7 @@ export default function Navbar() {
           />
           <div className="flex flex-col">
             <span className="font-semibold text-lg tracking-tight text-slate-900 leading-none">
-              OCD <span className="text-[#F26513]">LIVE</span>
-            </span>
-            <span className="text-[11px] text-slate-500 font-medium tracking-normal mt-0.5">
-              Plateaux Médias & Diffusion
+              Live
             </span>
           </div>
         </Link>

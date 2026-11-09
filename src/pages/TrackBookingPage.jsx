@@ -119,9 +119,10 @@ export default function TrackBookingPage({ settings = {} }) {
 
         {/* En-tête sans jargon */}
         <div className="space-y-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
-            Espace client
-          </span>
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+            <span className="h-px w-5 bg-[#F26513] inline-block" />
+            <span>PORTAIL CLIENT • SUIVI DE DOSSIER</span>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
             Suivre ma réservation
           </h1>

@@ -46,9 +46,10 @@ export default function ContactPage({ settings = {} }) {
         
         {/* Header direct et sans fioriture */}
         <div className="max-w-3xl space-y-3">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
-            Assistance directe
-          </span>
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+            <span className="h-px w-5 bg-[#F26513] inline-block" />
+            <span>DIRECTION COMMERCIALE & ASSISTANCE RÉGIE</span>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
             Contacter le Studio OCD LIVE
           </h1>

@@ -8,10 +8,6 @@ import {
   MessageCircle, 
   ExternalLink,
   CheckCircle2,
-  Calendar as CalendarIcon,
-  Video,
-  Sparkles,
-  Zap,
   Globe2,
   Users
 } from 'lucide-react';
@@ -61,91 +57,74 @@ export default function HomePage({ packages = [], settings = {} }) {
     <div className="text-slate-900 overflow-x-hidden">
       
       {/* =====================================================================
-          1. SECTION HERO LUMINEUSE, VIVANTE & CHALEUREUSE (THÈME CLAIR DOMINANT)
+          1. SECTION HERO — DESIGN ÉDITORIAL & BROADCASTER (SANS CLICHÉ IA)
       ===================================================================== */}
-      <section className="relative overflow-hidden pt-10 pb-16 sm:py-20 lg:py-24 border-b border-orange-200/70 bg-gradient-to-b from-orange-100/50 via-amber-50/40 to-white/80">
-        
-        {/* Auras d'arrière-plan animées pour donner de la vie au fond */}
-        <div className="absolute top-10 right-10 w-96 h-96 bg-gradient-to-bl from-orange-300/30 via-[#F26513]/20 to-transparent rounded-full blur-3xl animate-float-1 pointer-events-none" />
-        <div className="absolute -bottom-10 left-10 w-96 h-96 bg-gradient-to-tr from-amber-300/25 via-orange-200/20 to-transparent rounded-full blur-3xl animate-float-2 pointer-events-none" />
-
+      <section className="relative overflow-hidden pt-10 pb-16 sm:py-20 lg:py-24 border-b border-slate-200/80 bg-white/60">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             
             {/* Colonne gauche : Accroche & Boîtier d'action */}
             <div className="lg:col-span-7 space-y-6">
               
-              {/* Badge vivant : Indicateur de direct et égaliseur */}
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white/95 border-2 border-orange-200/90 shadow-sm backdrop-blur-md">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F26513] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#F26513]" />
-                </span>
-                <span className="text-xs font-black uppercase tracking-wider text-slate-900">
-                  Studio Lomé • Régie en direct
-                </span>
-                <div className="hidden sm:flex items-end gap-1 h-3.5 pl-2 border-l border-orange-200" aria-hidden="true">
-                  <span className="w-1 bg-[#F26513] rounded-full animate-eq-1" />
-                  <span className="w-1 bg-amber-500 rounded-full animate-eq-2" />
-                  <span className="w-1 bg-[#F26513] rounded-full animate-eq-3" />
-                  <span className="w-1 bg-amber-600 rounded-full animate-eq-4" />
-                </div>
+              {/* Tag éditorial architectural (remplace la pilule bonbon IA) */}
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+                <span className="h-px w-6 bg-[#F26513] inline-block" />
+                <span>COMPLEXE AUDIOVISUEL BOOVAN GROUP • LOMÉ, TOGO</span>
               </div>
 
-              {/* Titre percutant avec typographie forte */}
+              {/* Titre percutant, net, sans vaguelette artificielle */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.08] text-slate-950">
-                Vendez vos produits en direct <span className="text-[#F26513] underline decoration-orange-300 decoration-wavy decoration-2">à toute l'Afrique.</span>
+                Vendez vos produits en direct <span className="text-[#F26513]">à toute l'Afrique.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-slate-700 font-medium leading-relaxed max-w-xl">
                 Accédez à nos plateaux de télévision connectés à Lomé ou diffusez vos ventes depuis votre boutique au Togo, Bénin, Cameroun, Côte d'Ivoire ou Gabon.
               </p>
 
-              {/* BOÎTIER D'ACTION HAUTEMENT CONTRASTÉ & ERGONOMIQUE */}
-              <div className="p-5 sm:p-6 rounded-3xl bg-white/95 border-2 border-orange-200 shadow-[0_8px_30px_rgb(242,101,19,0.08)] backdrop-blur-md space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-[#F26513]" />
-                    <span>Que souhaitez-vous faire aujourd'hui ?</span>
+              {/* Console d'action principale : Formats carrés nets et lisibles */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
+                    Sélectionnez votre modalité
                   </span>
-                  <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
-                    Accès immédiat
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Lomé GMT
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Action 1 : Au Studio à Lomé */}
+                  {/* Option 1 : Studio Lomé */}
                   <Link
                     to="/reserver?mode=PRESENTIEL"
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#F26513] to-[#d65109] text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 active:scale-[0.98]"
+                    className="group flex flex-col justify-between p-5 rounded-xl bg-slate-950 hover:bg-[#F26513] text-white transition-colors cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-orange-100 bg-white/20 px-2 py-0.5 rounded">
-                        Option 1 • Togo
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-white/80">
+                        TOGO • PRÉSENTIEL
                       </span>
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
                     </div>
-                    <div className="mt-3.5">
-                      <strong className="block text-lg font-black leading-tight">Venir au Studio à Lomé</strong>
-                      <span className="text-xs text-orange-100 font-medium mt-1 block">
+                    <div className="mt-4">
+                      <strong className="block text-lg font-black leading-tight">Au Studio à Lomé</strong>
+                      <span className="text-xs text-slate-300 group-hover:text-white/90 font-medium mt-1 block">
                         Plateau TV, animatrice, caméras 4K
                       </span>
                     </div>
                   </Link>
 
-                  {/* Action 2 : Vendre depuis chez soi en Afrique */}
+                  {/* Option 2 : À distance Panafricain */}
                   <Link
                     to="/lives-afrique"
-                    className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-300 hover:border-[#F26513] text-slate-950 transition-all duration-200 hover:shadow-lg hover:shadow-slate-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                    className="group flex flex-col justify-between p-5 rounded-xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-[#F26513] text-slate-950 transition-all cursor-pointer"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                        Option 2 • Panafricain
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        AFRIQUE • À DISTANCE
                       </span>
-                      <Radio className="w-5 h-5 text-[#F26513] animate-pulse" />
+                      <Radio className="w-4 h-4 text-[#F26513]" />
                     </div>
-                    <div className="mt-3.5">
-                      <strong className="block text-lg font-black leading-tight">Diffuser mon propre direct</strong>
+                    <div className="mt-4">
+                      <strong className="block text-lg font-black leading-tight">Diffuser mon direct</strong>
                       <span className="text-xs text-slate-600 font-medium mt-1 block">
                         Bénin, Cameroun, CI, Togo (5 000 F)
                       </span>
@@ -153,77 +132,67 @@ export default function HomePage({ packages = [], settings = {} }) {
                   </Link>
                 </div>
 
-                {/* Lien direct WhatsApp */}
-                <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-200 text-xs">
-                  <span className="text-slate-600 font-medium">Vous hésitez sur la bonne formule ?</span>
+                {/* Assistance WhatsApp discrète et efficace */}
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-600">Besoin d'un conseil technique avant de réserver ?</span>
                   <a
-                    href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Bonjour OCD LIVE, je souhaite des conseils pour lancer mon passage en direct.")}`}
+                    href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Bonjour OCD LIVE, je souhaite des conseils pour mon passage en direct.")}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 font-bold text-emerald-700 hover:text-emerald-800 transition-colors"
+                    className="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:text-emerald-800 transition-colors"
                   >
                     <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Discuter avec notre équipe sur WhatsApp</span>
+                    <span>WhatsApp Régie</span>
                   </a>
                 </div>
               </div>
 
-              {/* Indicateurs de confiance du complexe */}
-              <div className="grid grid-cols-3 gap-3 pt-2 text-center sm:text-left">
-                <div className="p-3 rounded-xl bg-white/70 border border-orange-100">
+              {/* Chiffres clés régie */}
+              <div className="grid grid-cols-3 gap-3 pt-1">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                   <span className="block text-xl font-black text-slate-950">100%</span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase">En direct & sans filtre</span>
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">DIRECT RÉEL</span>
                 </div>
-                <div className="p-3 rounded-xl bg-white/70 border border-orange-100">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                   <span className="block text-xl font-black text-[#F26513]">7j / 7</span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase">Régie connectée</span>
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">RÉGIE CONNECTÉE</span>
                 </div>
-                <div className="p-3 rounded-xl bg-white/70 border border-orange-100">
+                <div className="p-3.5 rounded-xl bg-white border border-slate-200">
                   <span className="block text-xl font-black text-slate-950">5 000 F</span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase">Abonnement mensuel</span>
+                  <span className="text-[11px] font-mono text-slate-500 uppercase">ABONNEMENT / MOIS</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Colonne droite : Visuel Studio vivant avec animations de cadre */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="relative rounded-3xl overflow-hidden border-4 border-white shadow-2xl bg-slate-900 group">
+            {/* Colonne droite : Cadre Studio broadcast */}
+            <div className="lg:col-span-5">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-300 shadow-md bg-slate-950">
                 <img
                   src="/brand/ocd-studio-bovann.jpg"
                   alt="Studio de diffusion OCD LIVE à Lomé avec Bovann"
-                  className="w-full h-[440px] object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-[440px] object-cover object-top"
                 />
 
-                {/* Halo d'ambiance sur l'image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
-
-                {/* Badge en surimpression "En direct régie" */}
-                <div className="absolute top-4 left-4 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/90 backdrop-blur-md border border-white/30 text-white shadow-lg">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
-                  <span className="text-xs font-black uppercase tracking-wider">
-                    Direct Régie Lomé
-                  </span>
+                {/* Cartouche supérieur : Témoin Broadcast On-Air */}
+                <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1 rounded bg-slate-950/90 text-white font-mono text-xs font-bold border border-white/20">
+                  <span className="w-2 h-2 rounded-xs bg-red-600" />
+                  <span>ON AIR • LOMÉ STUDIO 01</span>
                 </div>
 
-                {/* Badge créneau de validation actif */}
-                <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-orange-200 text-xs font-bold">
-                  Créneaux : 08h-11h & 18h-21h
-                </div>
-
-                {/* Cartouche d'action en bas de photo */}
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-white text-slate-950 shadow-xl flex items-center justify-between">
+                {/* Cartouche inférieur régie */}
+                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-950/90 backdrop-blur-md border border-white/15 text-white flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase font-black text-[#F26513] block">
-                      Plateau TV Boovan Group
+                    <span className="text-[10px] font-mono uppercase text-orange-400 block">
+                      BOOVAN GROUP
                     </span>
-                    <strong className="text-sm font-black text-slate-900 block">
-                      Diffusion multi-caméras 4K
+                    <strong className="text-sm font-bold block">
+                      Plateau TV 4K multi-caméras
                     </strong>
                   </div>
                   <Link
                     to="/reserver"
-                    className="px-4 py-2.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-black text-xs uppercase tracking-wider shadow-md hover:scale-105 transition-all"
+                    className="px-4 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-bold text-xs uppercase tracking-wider"
                   >
                     Réserver
                   </Link>
@@ -236,99 +205,96 @@ export default function HomePage({ packages = [], settings = {} }) {
       </section>
 
       {/* =====================================================================
-          2. SECTION DIRECTS EN COURS : COMMERCE VIVANT PANAFRICAIN
+          2. SECTION DIRECTS EN COURS : GRILLE SANS CLICHÉS
       ===================================================================== */}
-      <section className="py-14 sm:py-20 relative bg-gradient-to-b from-transparent via-orange-50/30 to-transparent border-b border-orange-200/60">
+      <section className="py-14 sm:py-20 border-b border-slate-200/80 bg-white/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-black uppercase mb-2 shadow-xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-ping" />
-                <span>Flux vérifiés en direct</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+                <span className="h-px w-5 bg-[#F26513] inline-block" />
+                <span>FLUX VÉRIFIÉS EN TEMPS RÉEL</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-                Regarder les commerçants en direct
+                Commerçants en direct
               </h2>
-              <p className="text-sm sm:text-base text-slate-700 font-medium mt-1">
+              <p className="text-sm sm:text-base text-slate-600 font-medium">
                 Achetez directement auprès de vendeurs certifiés au Togo, Cameroun, Bénin, Côte d'Ivoire et Gabon.
               </p>
             </div>
 
             <Link
               to="/lives-afrique"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-slate-950 hover:bg-[#F26513] text-white font-bold text-xs uppercase tracking-wider self-start sm:self-auto transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-colors shrink-0"
             >
-              <Globe2 className="w-4 h-4" />
-              <span>Voir tous les pays</span>
+              <span>Accéder au répertoire</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
-          {/* Grille des directs actifs avec cartes vivantes à bordures lumineuses */}
+          {/* Cartes épurées, typographie broadcast */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {activeLives.map((live) => (
               <div
                 key={live.id}
-                className="group rounded-3xl bg-white/95 border-2 border-orange-100 hover:border-[#F26513] transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(242,101,19,0.08)] hover:shadow-[0_16px_36px_-6px_rgba(242,101,19,0.2)] hover:-translate-y-1.5"
+                className="rounded-2xl border border-slate-200 hover:border-[#F26513] bg-white transition-colors overflow-hidden flex flex-col justify-between shadow-xs"
               >
                 <div>
                   <div className="relative h-52 bg-slate-100 overflow-hidden">
                     <img
                       src={live.image}
                       alt={live.business}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-full object-cover"
                     />
                     
-                    {/* Badge EN LIVE pulsant */}
-                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-red-600 text-white text-[11px] font-black uppercase flex items-center gap-1.5 shadow-lg">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      <span>EN LIVE</span>
+                    {/* Témoin DIRECT sobre */}
+                    <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-red-600 text-white font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                      <span>DIRECT</span>
                     </div>
 
-                    {/* Pays badge */}
-                    <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-white text-xs font-black border border-white/20">
+                    <span className="absolute top-3 right-3 px-2 py-0.5 rounded bg-slate-950/80 text-white font-mono text-xs font-bold border border-white/20">
                       {live.country}
                     </span>
 
-                    {/* Nombre de spectateurs en direct */}
-                    <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1.5">
+                    <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded bg-slate-950/80 text-white font-mono text-[11px] font-semibold flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-orange-400" />
                       <span>{live.viewers} spectateurs</span>
                     </div>
                   </div>
 
-                  <div className="p-5 sm:p-6 space-y-2.5">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200 text-xs font-black text-[#F26513] uppercase tracking-wide">
+                  <div className="p-6 space-y-2">
+                    <span className="inline-block px-2 py-0.5 rounded bg-slate-100 border border-slate-200 font-mono text-xs text-slate-800 font-semibold">
                       {live.category}
                     </span>
-                    <h3 className="font-black text-xl text-slate-950 line-clamp-1">
+                    <h3 className="font-extrabold text-xl text-slate-950 line-clamp-1">
                       {live.business}
                     </h3>
-                    <p className="text-xs text-slate-600 font-medium">
-                      Diffusé via : <strong className="text-slate-800">{live.platform}</strong> • Validé par l'équipe Boovan
+                    <p className="text-xs text-slate-500 font-medium">
+                      Canal : <strong className="text-slate-800 uppercase">{live.platform}</strong> • Validé par Boovan
                     </p>
                   </div>
                 </div>
 
-                <div className="p-5 sm:p-6 pt-0 space-y-2.5">
+                <div className="p-6 pt-0 space-y-2">
                   <a
                     href={live.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full min-h-[48px] rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+                    className="w-full min-h-[46px] rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
                     <span>Rejoindre le direct</span>
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 text-slate-400" />
                   </a>
 
                   <a
                     href={`https://wa.me/${live.whatsapp}?text=${encodeURIComponent(`Bonjour, je vous regarde sur OCD LIVE dans la catégorie ${live.category} et je souhaite commander.`)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full min-h-[46px] rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border-2 border-[#25D366]/40 text-emerald-900 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
+                    className="w-full min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
                   >
-                    <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <MessageCircle className="w-4 h-4" />
                     <span>Commander sur WhatsApp</span>
                   </a>
                 </div>
@@ -336,25 +302,25 @@ export default function HomePage({ packages = [], settings = {} }) {
             ))}
           </div>
 
-          {/* Bandeau d'action pour commerçants voulant vendre depuis chez eux */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-orange-100/90 via-amber-50 to-orange-100/90 border-2 border-orange-200 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-md">
-            <div className="space-y-1.5">
-              <span className="text-xs font-black uppercase tracking-wider text-[#F26513] block">
-                Offre Commerçants Panafricains
+          {/* Bandeau commerçant sobre */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
+            <div className="space-y-1">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#F26513] block">
+                OFFRE PANAFRICAINE • 5 000 FCFA / MOIS
               </span>
               <strong className="text-xl sm:text-2xl font-black text-slate-950 block">
                 Vous faites des directs de vente chez vous ?
               </strong>
-              <p className="text-sm text-slate-700 font-medium max-w-2xl">
-                Abonnez votre commerce pour seulement <strong>5 000 FCFA / mois</strong> (166 FCFA par jour) et apparaissez devant des milliers d'acheteurs de votre pays sur nos créneaux de 08h-11h et 18h-21h.
+              <p className="text-sm text-slate-600 font-medium max-w-2xl">
+                Abonnez votre boutique pour 166 FCFA par jour et apparaissez devant les acheteurs de votre pays sur nos créneaux de 08h-11h et 18h-21h.
               </p>
             </div>
 
             <Link
               to="/lives-afrique"
-              className="px-7 py-4 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-black text-xs uppercase tracking-wider shrink-0 text-center transition-all shadow-md hover:scale-105"
+              className="px-6 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-bold text-xs uppercase tracking-wider shrink-0 text-center transition-colors"
             >
-              Envoyer le lien de mon live
+              Envoyer mon lien
             </Link>
           </div>
 
@@ -362,306 +328,169 @@ export default function HomePage({ packages = [], settings = {} }) {
       </section>
 
       {/* =====================================================================
-          3. SECTION CHOIX DU PASSAGE : DEUX MODALITÉS SIMPLES
+          3. SECTION DEUX FORMULES : DESIGN SOBER
       ===================================================================== */}
-      <section className="py-14 sm:py-20 relative bg-gradient-to-b from-transparent via-amber-50/20 to-transparent border-b border-orange-200/60">
+      <section className="py-14 sm:py-20 border-b border-slate-200/80 bg-white/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="max-w-2xl space-y-2">
-            <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-              Deux façons de passer sur OCD LIVE
-            </span>
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+              <span className="h-px w-5 bg-[#F26513] inline-block" />
+              <span>MODALITÉS DE DIFFUSION</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-              Choisissez votre formule de vente
+              Deux formats d'antenne adaptés à votre commerce
             </h2>
             <p className="text-base text-slate-700 font-medium">
-              Que vous soyez physiquement à Lomé ou n'importe où en Afrique, tout est prêt pour votre passage.
+              Que vous veniez au studio à Lomé ou que vous animiez depuis votre pays, nos moyens techniques sont mobilisés pour vous.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Carte A : Studio Lomé */}
-            <div className="rounded-3xl bg-white/95 border-2 border-orange-200 p-7 sm:p-9 space-y-6 flex flex-col justify-between shadow-[0_8px_30px_rgb(242,101,19,0.06)] hover:shadow-xl transition-all">
+            <div className="rounded-2xl bg-white border border-slate-200 p-8 space-y-6 flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="px-3.5 py-1.5 rounded-full bg-orange-100 text-[#F26513] text-xs font-black uppercase border border-orange-200">
-                    Au Studio • Lomé, Togo
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span className="px-2.5 py-1 rounded bg-slate-900 text-white font-mono text-xs font-bold uppercase tracking-wider">
+                    AU STUDIO • LOMÉ
                   </span>
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
-                    Dès 15 000 FCFA
+                  <span className="text-xs font-mono font-bold text-slate-600">
+                    DÈS 15 000 FCFA
                   </span>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-950">
-                  Je viens au studio à Lomé avec mes produits
+                <h3 className="text-2xl font-black text-slate-950">
+                  Passage sur plateau TV à Lomé
                 </h3>
 
-                <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">
-                  Venez présenter vos articles sur un véritable plateau de télévision. Vous êtes accueilli par notre animatrice avec caméras 4K, éclairage de cinéma et affichage en temps réel de votre numéro WhatsApp pour recevoir les commandes.
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Venez présenter vos articles sur un plateau de télévision équipé. Vous êtes accompagné par une animatrice professionnelle avec caméras 4K, lumière cinéma et affichage de votre contact WhatsApp à l'écran.
                 </p>
 
                 <ul className="space-y-3 text-sm text-slate-800 pt-2 font-medium">
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#F26513] shrink-0" />
-                    <span>Animatrice dédiée sur le plateau pour interviewer et vendre vos articles</span>
+                    <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0" />
+                    <span>Animatrice sur plateau pour valoriser vos articles</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#F26513] shrink-0" />
-                    <span>Régie multi-caméras 4K et éclairage professionnel de studio</span>
+                    <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0" />
+                    <span>Régie multi-caméras 4K et éclairage professionnel</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-[#F26513] shrink-0" />
-                    <span>Bandeau avec votre numéro WhatsApp de commande affiché à l'écran</span>
+                    <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0" />
+                    <span>Bandeau de commande WhatsApp incrusté en temps réel</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-200">
+              <div className="pt-4 border-t border-slate-100">
                 <Link
                   to="/reserver?mode=PRESENTIEL"
-                  className="w-full min-h-[52px] rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01]"
+                  className="w-full min-h-[50px] rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-xs"
                 >
-                  <span>Réserver mon passage en studio</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <span>Réserver en studio</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
 
             {/* Carte B : À distance */}
-            <div className="rounded-3xl bg-white/95 border-2 border-emerald-200 p-7 sm:p-9 space-y-6 flex flex-col justify-between shadow-[0_8px_30px_rgb(16,185,129,0.06)] hover:shadow-xl transition-all">
+            <div className="rounded-2xl bg-white border border-slate-200 p-8 space-y-6 flex flex-col justify-between shadow-xs">
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase border border-emerald-300">
-                    À distance • Panafricain
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <span className="px-2.5 py-1 rounded bg-slate-100 border border-slate-300 text-slate-900 font-mono text-xs font-bold uppercase tracking-wider">
+                    À DISTANCE • PANAFRICAIN
                   </span>
-                  <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
-                    Cameroun, Bénin, CI, Gabon...
+                  <span className="text-xs font-mono font-bold text-slate-600">
+                    BENIN, CAMEROUN, CI, GABON...
                   </span>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-950">
-                  J'anime mon direct depuis mon pays ou chez moi
+                <h3 className="text-2xl font-black text-slate-950">
+                  Duplex depuis votre boutique ou domicile
                 </h3>
 
-                <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-medium">
-                  Vous restez dans votre boutique ou à votre domicile. Notre régie centrale au Togo récupère votre flux vidéo, l'habille professionnellement et le diffuse devant notre audience de milliers d'acheteurs.
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Vous animez depuis votre téléphone dans votre ville. La régie centrale OCD LIVE à Lomé récupère votre flux, l'habille aux normes télévisuelles et le relaie auprès de notre audience panafricaine.
                 </p>
 
                 <ul className="space-y-3 text-sm text-slate-800 pt-2 font-medium">
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <span>Diffusion directe depuis votre téléphone portable ou tablette</span>
+                    <CheckCircle2 className="w-4 h-4 text-slate-700 shrink-0" />
+                    <span>Diffusion directe depuis votre téléphone portable</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <span>Possibilité d'assistance par une animatrice en duplex depuis Lomé</span>
+                    <CheckCircle2 className="w-4 h-4 text-slate-700 shrink-0" />
+                    <span>Possibilité d'assistance animatrice en duplex de Lomé</span>
                   </li>
                   <li className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    <span>Enregistrement vidéo HD fourni après votre session pour vos réseaux</span>
+                    <CheckCircle2 className="w-4 h-4 text-slate-700 shrink-0" />
+                    <span>Enregistrement vidéo haute définition fourni après diffusion</span>
                   </li>
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-slate-200">
+              <div className="pt-4 border-t border-slate-100">
                 <Link
                   to="/reserver?mode=DISTANCE"
-                  className="w-full min-h-[52px] rounded-xl bg-slate-950 hover:bg-[#F26513] text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.01]"
+                  className="w-full min-h-[50px] rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-xs"
                 >
-                  <span>Réserver mon créneau à distance</span>
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          4. FORFAITS LES PLUS POPULAIRES (ACCÈS DIRECT AU PANIER)
-      ===================================================================== */}
-      <section className="py-14 sm:py-20 relative bg-gradient-to-b from-transparent via-orange-50/25 to-transparent border-b border-orange-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-                Tarifs clairs et fixes
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-                Nos forfaits de diffusion
-              </h2>
-            </div>
-
-            <Link
-              to="/forfaits"
-              className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#F26513] hover:underline"
-            >
-              <span>Comparer les 6 forfaits complets</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {(packages.slice(0, 3)).map((pkg) => (
-              <div
-                key={pkg.id}
-                className="rounded-3xl bg-white/95 border-2 border-orange-100 hover:border-[#F26513] p-7 flex flex-col justify-between space-y-6 shadow-sm hover:shadow-xl transition-all duration-300"
-              >
-                <div className="space-y-3.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
-                      Durée : {pkg.duration_label}
-                    </span>
-                    {pkg.badge && (
-                      <span className="px-3 py-1 rounded-full bg-orange-100 border border-orange-200 text-[#F26513] text-[10px] font-black uppercase">
-                        {pkg.badge}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="font-black text-2xl text-slate-950">{pkg.name}</h3>
-                  <div className="text-3xl font-black text-[#F26513]">{pkg.price_label}</div>
-                  <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">{pkg.subtitle}</p>
-
-                  <ul className="space-y-2 pt-2">
-                    {(pkg.features || []).slice(0, 3).map((feat, i) => (
-                      <li key={i} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-800 font-medium">
-                        <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0" />
-                        <span>{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <Link
-                  to={`/reserver?packageId=${pkg.id}`}
-                  className="w-full min-h-[48px] rounded-xl bg-slate-950 hover:bg-[#F26513] text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
-                >
-                  <span>Choisir ce forfait</span>
+                  <span>Réserver à distance</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
-            ))}
-          </div>
+            </div>
 
+          </div>
         </div>
       </section>
 
       {/* =====================================================================
-          5. PARCOURS SIMPLE EN 3 ÉTAPES (ZÉRO TEXTE SUPERFLU)
+          4. BOUTIQUE OFFICIELLE — VITRINE ÉPURÉE
       ===================================================================== */}
-      <section className="py-14 sm:py-20 relative bg-gradient-to-b from-transparent via-amber-50/20 to-transparent border-b border-orange-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-              Simple & Rapide
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
-              Comment ça se passe concrètement ?
-            </h2>
-            <p className="text-sm sm:text-base text-slate-700 font-medium">
-              Trois étapes directes sans aucune difficulté technique.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <div className="p-7 rounded-3xl bg-white/95 border-2 border-orange-100 space-y-3.5 shadow-sm hover:shadow-md transition-shadow">
-              <span className="font-black text-3xl text-[#F26513] block">01</span>
-              <strong className="block text-lg font-black text-slate-950">
-                Vous choisissez votre date et votre formule
-              </strong>
-              <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                En présentiel au studio à Lomé ou à distance depuis votre boutique. Vous sélectionnez l'horaire qui convient à vos clients.
-              </p>
-            </div>
-
-            <div className="p-7 rounded-3xl bg-white/95 border-2 border-orange-100 space-y-3.5 shadow-sm hover:shadow-md transition-shadow">
-              <span className="font-black text-3xl text-[#F26513] block">02</span>
-              <strong className="block text-lg font-black text-slate-950">
-                Nous préparons le direct avec vous
-              </strong>
-              <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                Vous transmettez vos photos et votre numéro WhatsApp commercial. L'animatrice prépare la mise en valeur de vos articles.
-              </p>
-            </div>
-
-            <div className="p-7 rounded-3xl bg-white/95 border-2 border-orange-100 space-y-3.5 shadow-sm hover:shadow-md transition-shadow">
-              <span className="font-black text-3xl text-[#F26513] block">03</span>
-              <strong className="block text-lg font-black text-slate-950">
-                Vous passez en direct et vendez
-              </strong>
-              <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                Les spectateurs regardent votre démonstration et vous contactent directement sur WhatsApp pour payer et recevoir leurs colis.
-              </p>
-            </div>
-
-          </div>
-
-          <div className="text-center pt-2">
-            <Link
-              to="/reserver"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-black text-sm uppercase tracking-wider transition-all shadow-lg hover:scale-105"
-            >
-              <span>Réserver mon direct maintenant</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-
-        </div>
-      </section>
-
-      {/* =====================================================================
-          6. BOUTIQUE OFFICIELLE OCD SHOP
-      ===================================================================== */}
-      <section className="py-14 sm:py-20 relative bg-gradient-to-b from-transparent via-orange-50/20 to-transparent">
+      <section className="py-14 sm:py-20 border-b border-slate-200/80 bg-white/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
-                Boutique officielle
-              </span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
+                <span className="h-px w-5 bg-[#F26513] inline-block" />
+                <span>CATALOGUE COMMERCIAL</span>
+              </div>
               <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
                 Articles présentés sur OCD LIVE
               </h2>
-              <p className="text-sm sm:text-base text-slate-700 font-medium mt-1">
-                Commandez des produits de qualité certifiés directement auprès de leurs créateurs.
+              <p className="text-sm sm:text-base text-slate-600 font-medium">
+                Commandez directement auprès de vendeurs certifiés avec livraison locale ou expédition.
               </p>
             </div>
 
             <Link
               to="/boutique"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white border-2 border-slate-300 hover:border-[#F26513] text-slate-900 font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-300 font-bold text-xs uppercase tracking-wider transition-colors shrink-0"
             >
-              <ShoppingBag className="w-4 h-4 text-[#F26513]" />
+              <ShoppingBag className="w-4 h-4 text-slate-700" />
               <span>Ouvrir la boutique</span>
             </Link>
           </div>
 
-          {/* Bannière marchande chaleureuse & lumineuse */}
-          <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-amber-600 via-[#F26513] to-orange-700 text-white flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="relative space-y-2 z-10">
-              <span className="text-xs font-black uppercase tracking-wider text-amber-200">
-                Marketplace Panafricaine Certifiée
+          <div className="p-8 sm:p-10 rounded-2xl bg-slate-950 text-white flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-sm">
+            <div className="space-y-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-orange-400">
+                MARKETPLACE PANAFRICAINE CERTIFIÉE
               </span>
-              <h3 className="text-3xl sm:text-4xl font-black leading-tight">
-                Tous les produits vendus en live en un seul endroit.
+              <h3 className="text-2xl sm:text-3xl font-black">
+                Tous les produits vendus en direct en un seul endroit.
               </h3>
-              <p className="text-sm sm:text-base text-orange-100 font-medium max-w-xl">
-                Alimentation, mode, épices, beauté et artisanat : chaque article dispose du contact direct WhatsApp du vendeur pour une livraison rapide.
+              <p className="text-sm text-slate-300 max-w-xl font-medium">
+                Alimentation, mode, épices, beauté et artisanat : chaque article dispose du contact direct WhatsApp du vendeur pour un échange rapide.
               </p>
             </div>
 
             <Link
               to="/boutique"
-              className="relative z-10 px-8 py-4 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-black text-xs uppercase tracking-wider shrink-0 text-center transition-all shadow-lg hover:scale-105"
+              className="px-7 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-bold text-xs uppercase tracking-wider shrink-0 text-center transition-colors shadow-xs"
             >
               Parcourir le catalogue
             </Link>
