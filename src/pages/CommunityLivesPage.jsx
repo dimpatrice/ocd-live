@@ -6,36 +6,36 @@ import {
   Phone, 
   Clock, 
   Send, 
-  PlusCircle, 
-  CheckCircle, 
+  Plus, 
+  CheckCircle2, 
   AlertCircle, 
-  Sparkles,
-  ShoppingBag,
-  Flame,
-  Globe2,
-  Check
+  ShoppingBag, 
+  Globe2, 
+  Check,
+  Filter,
+  X
 } from 'lucide-react';
 
 const AFRICAN_COUNTRIES = [
-  { code: 'Bénin', label: 'Bénin', flag: '🇧🇯' },
-  { code: 'Cameroun', label: 'Cameroun', flag: '🇨🇲' },
-  { code: 'Côte d\'Ivoire', label: 'Côte d\'Ivoire', flag: '🇨🇮' },
-  { code: 'Togo', label: 'Togo', flag: '🇹🇬' },
-  { code: 'Sénégal', label: 'Sénégal', flag: '🇸🇳' },
-  { code: 'Gabon', label: 'Gabon', flag: '🇬🇦' },
-  { code: 'Mali', label: 'Mali', flag: '🇲🇱' },
-  { code: 'Burkina Faso', label: 'Burkina Faso', flag: '🇧🇫' },
-  { code: 'RD Congo', label: 'RD Congo', flag: '🇨🇩' },
-  { code: 'Guinée', label: 'Guinée', flag: '🇬🇳' }
+  { code: 'Bénin', label: 'Bénin' },
+  { code: 'Cameroun', label: 'Cameroun' },
+  { code: 'Côte d\'Ivoire', label: 'Côte d\'Ivoire' },
+  { code: 'Togo', label: 'Togo' },
+  { code: 'Sénégal', label: 'Sénégal' },
+  { code: 'Gabon', label: 'Gabon' },
+  { code: 'Mali', label: 'Mali' },
+  { code: 'Burkina Faso', label: 'Burkina Faso' },
+  { code: 'RD Congo', label: 'RD Congo' },
+  { code: 'Guinée', label: 'Guinée' }
 ];
 
 const CATEGORIES = [
-  { id: 'Nourriture & Restauration', label: '🍲 Nourriture & Restauration' },
-  { id: 'Mode & Habits', label: '👗 Mode & Habits' },
-  { id: 'Beauté & Cosmétique', label: '💄 Beauté & Cosmétique' },
-  { id: 'Électronique & High-Tech', label: '📱 High-Tech & Accessoires' },
-  { id: 'Maison & Décoration', label: '🏠 Maison & Déco' },
-  { id: 'Agroalimentaire & Épices', label: '🌶️ Produits du Terroir' }
+  { id: 'Nourriture & Restauration', label: 'Nourriture & Restauration' },
+  { id: 'Mode & Habits', label: 'Mode & Habillement' },
+  { id: 'Beauté & Cosmétique', label: 'Beauté & Cosmétique' },
+  { id: 'Électronique & High-Tech', label: 'Électronique & High-Tech' },
+  { id: 'Maison & Décoration', label: 'Maison & Décoration' },
+  { id: 'Agroalimentaire & Épices', label: 'Terroir & Agroalimentaire' }
 ];
 
 export default function CommunityLivesPage() {
@@ -46,7 +46,7 @@ export default function CommunityLivesPage() {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [selectedSlot, setSelectedSlot] = useState('ALL');
 
-  // État du modal d'inscription
+  // Modal d'inscription
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(null);
@@ -78,7 +78,7 @@ export default function CommunityLivesPage() {
         setSlotStatus(data.slotStatus);
       }
     } catch (err) {
-      console.error('Erreur chargement des lives:', err);
+      console.error('Erreur chargement des directs:', err);
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export default function CommunityLivesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      setSubmitSuccess(res.message || 'Votre direct a été soumis !');
+      setSubmitSuccess(res.message || 'Votre direct a été soumis avec succès.');
       setFormData({
         seller_name: '',
         business_name: '',
@@ -119,176 +119,140 @@ export default function CommunityLivesPage() {
       });
       loadLives();
     } catch (err) {
-      setSubmitError(err.message || 'Une erreur est survenue lors de la soumission.');
+      setSubmitError(err.message || 'Une erreur est survenue lors de la transmission.');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getCountryFlag = (countryName) => {
-    const found = AFRICAN_COUNTRIES.find((c) => c.code.toLowerCase() === (countryName || '').toLowerCase());
-    return found ? found.flag : '🌍';
-  };
-
   return (
-    <div className="bg-white min-h-screen text-zinc-900 pb-20">
+    <div className="bg-slate-50 min-h-screen text-slate-900 pb-20">
+      
       {/* =====================================================================
-          1. HERO BANNER — INSPIRÉ DIRECTEMENT DE BOVANN
+          1. EN-TÊTE SOBRE & DIRECT
       ===================================================================== */}
-      <section className="bg-zinc-950 text-white border-b border-zinc-800 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#F26513_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F26513]/20 border border-[#F26513]/40 text-[#F26513] text-xs font-bold uppercase tracking-wider">
-                <span className="w-2 h-2 rounded-full bg-[#F26513] animate-ping" />
-                <span>Nouveau • Le TikTok Shop Africain</span>
+      <section className="bg-white border-b border-slate-200 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+            
+            <div className="space-y-3 max-w-3xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium">
+                <Radio className="w-3.5 h-3.5 text-[#F26513]" />
+                <span>Réseau de Vente en Direct Panafricain</span>
               </div>
 
-              <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight text-white leading-tight">
-                LIVES DEPUIS CHEZ VOUS : <br />
-                <span className="text-[#F26513]">TOUTE L'AFRIQUE VOUS REGARDE.</span>
+              <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+                Directs Commerciaux Panafricains
               </h1>
 
-              <p className="text-zinc-300 text-sm sm:text-base leading-relaxed max-w-2xl">
-                Vous vendez de la nourriture, des vêtements ou des cosmétiques depuis votre maison ou boutique au <strong>Bénin</strong>, au <strong>Cameroun</strong>, en <strong>Côte d'Ivoire</strong> ou au <strong>Togo</strong> ? 
-                Lancez votre direct sur TikTok, Facebook ou Instagram, transmettez votre lien : notre équipe vérifie votre vente et vous propulse en tête sur OCD LIVE !
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                Retrouvez les entrepreneurs et commerçants actuellement en direct depuis leur boutique ou atelier au Bénin, Cameroun, Côte d'Ivoire, Togo et partout en Afrique. Rejoignez leur stream ou commandez directement sur WhatsApp.
               </p>
 
-              {/* Créneaux Officiels & Badge en direct */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-                  <Clock className="w-4 h-4 text-[#F26513]" />
-                  <div className="text-xs">
-                    <span className="text-zinc-400 block">Deux créneaux de diffusion / jour :</span>
-                    <strong className="text-white">08h00 - 11h00 GMT &nbsp;|&nbsp; 18h00 - 21h00 GMT</strong>
-                  </div>
+              {/* Créneaux et statut officiel */}
+              <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                  <Clock className="w-4 h-4 text-slate-500" />
+                  <span>2 créneaux de modération : 08h00 - 11h00 GMT & 18h00 - 21h00 GMT</span>
                 </div>
 
-                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
-                  <Flame className="w-4 h-4 text-emerald-400" />
-                  <div className="text-xs">
-                    <span className="text-zinc-400 block">Abonnement vendeur :</span>
-                    <strong className="text-emerald-400">5 000 FCFA / mois (soit ~166 FCFA/jour)</strong>
+                {slotStatus && (
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border font-medium ${
+                    slotStatus.isLiveNow
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${slotStatus.isLiveNow ? 'bg-emerald-600' : 'bg-amber-500'}`} />
+                    <span>
+                      {slotStatus.isLiveNow
+                        ? `Créneau ouvert en ce moment (${slotStatus.activeSlot?.label})`
+                        : `Prochain créneau : ${slotStatus.nextSlot?.startsAt || 'Bientôt'} (Actuellement ${slotStatus.currentTimeLome})`}
+                    </span>
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* Statut du créneau en temps réel */}
-              {slotStatus && (
-                <div className="pt-2">
-                  {slotStatus.isLiveNow ? (
-                    <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-xs font-semibold">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span>CRÉNEAU EN COURS ({slotStatus.activeSlot?.label}) — Les équipes de Boovan Group valident vos directs en direct !</span>
-                    </div>
-                  ) : (
-                    <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-semibold">
-                      <Clock className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{slotStatus.nextSlot?.label} (Actuellement {slotStatus.currentTimeLome}) — Vous pouvez soumettre votre lien dès maintenant !</span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Carte CTA Vendeur */}
-            <div className="lg:col-span-4 bg-zinc-900 border border-zinc-800 p-6 rounded-2xl flex flex-col justify-between shadow-2xl">
-              <div className="space-y-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#F26513] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" /> Espace Vendeurs & Mamans
-                </span>
-                <h3 className="font-display font-bold text-lg text-white">
-                  Vous êtes en direct en ce moment ?
+            {/* Bouton pour les vendeurs */}
+            <div className="shrink-0 bg-slate-50 border border-slate-200 p-5 rounded-xl space-y-3 max-w-sm">
+              <div>
+                <h3 className="font-semibold text-sm text-slate-900">
+                  Vous vendez en direct aujourd'hui ?
                 </h3>
-                <p className="text-zinc-400 text-xs leading-relaxed">
-                  Ne restez pas avec 1 ou 2 spectateurs. Rejoignez OCD LIVE et touchez des centaines d'acheteurs de votre pays et de la diaspora.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Diffusez votre lien sur OCD LIVE pour 5 000 FCFA / mois (~166 FCFA / jour).
                 </p>
-                <div className="space-y-1.5 pt-1 text-xs text-zinc-300">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Lien direct vers votre TikTok / Facebook</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Bouton WhatsApp direct pour commander</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Validation humaine par Boovan Group</span>
-                  </div>
-                </div>
               </div>
 
-              <div className="pt-6">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSubmitSuccess(null);
-                    setModalOpen(true);
-                  }}
-                  className="w-full py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-transform active:scale-95"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>Diffuser mon live ici (5 000 F)</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSubmitSuccess(null);
+                  setModalOpen(true);
+                }}
+                className="w-full py-2.5 px-4 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Soumettre mon direct</span>
+              </button>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          2. FILTRES RAPIDES PAR PAYS & PAR CATÉGORIE
+          2. FILTRES CLAIRS PAR PAYS & PAR RAYON
       ===================================================================== */}
-      <section className="sticky top-20 z-40 bg-white/95 backdrop-blur-md border-b border-zinc-200 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
-          {/* Ligne 1 : Filtre par Pays */}
+      <section className="sticky top-20 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 py-3 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2.5">
+          
+          {/* Ligne 1 : Filtre Pays */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider shrink-0 flex items-center gap-1 mr-1">
-              <Globe2 className="w-3.5 h-3.5" /> Pays :
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+              <Globe2 className="w-3.5 h-3.5" />
+              <span>Pays :</span>
             </span>
             <button
               type="button"
               onClick={() => setSelectedCountry('ALL')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
                 selectedCountry === 'ALL'
-                  ? 'bg-zinc-900 text-white'
-                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              🌍 Toute l'Afrique
+              Tous les pays
             </button>
             {AFRICAN_COUNTRIES.map((c) => (
               <button
                 key={c.code}
                 type="button"
                 onClick={() => setSelectedCountry(c.code)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
                   selectedCountry === c.code
                     ? 'bg-[#F26513] text-white'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                <span>{c.flag}</span>
-                <span>{c.label}</span>
+                {c.label}
               </button>
             ))}
           </div>
 
-          {/* Ligne 2 : Filtre par Catégorie & Créneau */}
+          {/* Ligne 2 : Filtre Rayon */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider shrink-0 mr-1">
-              Rayon :
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+              <Filter className="w-3.5 h-3.5" />
+              <span>Rayon :</span>
             </span>
             <button
               type="button"
               onClick={() => setSelectedCategory('ALL')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
                 selectedCategory === 'ALL'
-                  ? 'bg-zinc-900 text-white'
-                  : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
               Tous les rayons
@@ -298,85 +262,72 @@ export default function CommunityLivesPage() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${
+                className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
                   selectedCategory === cat.id
-                    ? 'bg-zinc-900 text-white'
-                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {cat.label}
               </button>
             ))}
 
-            <div className="h-4 w-px bg-zinc-300 mx-2 shrink-0" />
+            <div className="h-4 w-px bg-slate-300 mx-2 shrink-0" />
 
-            {/* Filtre Créneau */}
             <button
               type="button"
               onClick={() => setSelectedSlot(selectedSlot === 'MATIN' ? 'ALL' : 'MATIN')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${
-                selectedSlot === 'MATIN' ? 'bg-amber-500 text-white' : 'bg-zinc-100 text-zinc-700'
+              className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
+                selectedSlot === 'MATIN' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              ☀️ Créneau Matin (08h-11h)
+              Matin (08h-11h)
             </button>
             <button
               type="button"
               onClick={() => setSelectedSlot(selectedSlot === 'SOIR' ? 'ALL' : 'SOIR')}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors ${
-                selectedSlot === 'SOIR' ? 'bg-indigo-600 text-white' : 'bg-zinc-100 text-zinc-700'
+              className={`px-3 py-1.5 rounded-md text-xs font-medium shrink-0 transition-colors ${
+                selectedSlot === 'SOIR' ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              🌙 Créneau Soir (18h-21h)
+              Soir (18h-21h)
             </button>
           </div>
+
         </div>
       </section>
 
       {/* =====================================================================
-          3. GRILLE DES LIVES ACTIFS
+          3. GRILLE DES DIRECTS
       ===================================================================== */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-zinc-900 flex items-center gap-2">
-              <Radio className="w-5 h-5 text-red-600 animate-pulse" />
-              <span>Directs Vendeurs en cours</span>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 font-mono font-bold">
-                {lives.length} en direct
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <span>Directs confirmés</span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-medium">
+                {lives.length} en cours
               </span>
             </h2>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              Cliquez pour rejoindre le stream ou écrivez directement sur WhatsApp au vendeur.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Consultez le stream officiel du vendeur ou contactez-le directement par messagerie.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              setSubmitSuccess(null);
-              setModalOpen(true);
-            }}
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-display font-bold text-xs uppercase tracking-wider"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Diffuser mon live</span>
-          </button>
         </div>
 
         {loading ? (
           <div className="py-20 text-center space-y-3">
-            <div className="w-10 h-10 border-4 border-[#F26513] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-zinc-500 font-medium">Recherche des lives dans votre pays...</p>
+            <div className="w-8 h-8 border-3 border-[#F26513] border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-slate-500 font-medium">Chargement des directs...</p>
           </div>
         ) : lives.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-zinc-200 p-12 text-center max-w-xl mx-auto space-y-4">
-            <Radio className="w-12 h-12 text-zinc-300 mx-auto" />
-            <h3 className="font-display font-bold text-lg text-zinc-800">
-              Aucun direct actif dans cette sélection pour l'instant
+          <div className="rounded-xl border border-slate-200 bg-white p-12 text-center max-w-lg mx-auto space-y-3">
+            <Radio className="w-10 h-10 text-slate-300 mx-auto" />
+            <h3 className="font-semibold text-base text-slate-800">
+              Aucun direct actif dans cette sélection
             </h3>
-            <p className="text-sm text-zinc-500">
-              Soyez le premier à lancer votre direct dans ce pays ou cette catégorie et profitez de toute l'audience OCD LIVE !
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Vous vendez dans cette catégorie ou dans ce pays ? Soyez le premier à soumettre votre flux de vente.
             </p>
             <button
               type="button"
@@ -384,10 +335,10 @@ export default function CommunityLivesPage() {
                 setSubmitSuccess(null);
                 setModalOpen(true);
               }}
-              className="px-5 py-2.5 rounded-xl bg-[#F26513] text-white font-bold text-xs uppercase tracking-wider inline-flex items-center gap-2"
+              className="mt-2 px-4 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-medium text-xs inline-flex items-center gap-1.5"
             >
-              <PlusCircle className="w-4 h-4" />
-              <span>Lancer mon live maintenant</span>
+              <Plus className="w-4 h-4" />
+              <span>Soumettre mon direct</span>
             </button>
           </div>
         ) : (
@@ -395,70 +346,67 @@ export default function CommunityLivesPage() {
             {lives.map((live) => {
               const waClean = (live.whatsapp || '').replace(/[^0-9]/g, '');
               const waMsg = encodeURIComponent(
-                `Bonjour ${live.seller_name}, j'ai vu votre live sur OCD Live (${live.business_name || ''}) et je souhaite voir vos articles et commander !`
+                `Bonjour ${live.seller_name}, j'ai vu votre direct sur OCD Live (${live.business_name || ''}) et je souhaite voir vos articles et commander.`
               );
               const waLink = `https://wa.me/${waClean}?text=${waMsg}`;
 
               return (
                 <div
                   key={live.id}
-                  className="rounded-2xl border border-zinc-200 bg-white shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col justify-between"
+                  className="rounded-xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition-shadow overflow-hidden flex flex-col justify-between"
                 >
-                  <div className="p-5 space-y-4">
-                    {/* Header carte : Pays + Badge Live + Plateforme */}
+                  <div className="p-5 space-y-3.5">
+                    
+                    {/* Header : Pays + Statut Live + Créneau */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl">{getCountryFlag(live.country)}</span>
-                        <span className="font-bold text-xs text-zinc-900 bg-zinc-100 px-2.5 py-1 rounded-md">
+                        <span className="font-semibold text-xs text-slate-900 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                           {live.country}
                         </span>
-                        <span className="text-[11px] font-semibold text-zinc-500">
-                          {live.time_slot === 'MATIN' ? '☀️ Matin' : '🌙 Soir'}
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {live.time_slot === 'MATIN' ? 'Créneau Matin' : 'Créneau Soir'}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 text-[11px] font-bold">
-                        <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
-                        <span>EN DIRECT</span>
-                      </div>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                        <span>En direct</span>
+                      </span>
                     </div>
 
-                    {/* Vendeur & Boutique */}
+                    {/* Vendeur & Commerce */}
                     <div>
-                      <h3 className="font-display font-extrabold text-lg text-zinc-950 leading-snug">
+                      <h3 className="font-semibold text-base text-slate-950 leading-snug">
                         {live.business_name || live.seller_name}
                       </h3>
-                      <p className="text-xs text-zinc-500 font-medium">
-                        Par <strong className="text-zinc-700">{live.seller_name}</strong> • {live.category}
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        Vendeur : {live.seller_name} • <span className="text-slate-700">{live.category}</span>
                       </p>
                     </div>
 
-                    {/* Description courte */}
+                    {/* Description */}
                     {live.description && (
-                      <p className="text-xs text-zinc-600 bg-zinc-50 p-3 rounded-xl line-clamp-3 leading-relaxed">
+                      <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg leading-relaxed border border-slate-100">
                         "{live.description}"
                       </p>
                     )}
 
-                    {/* Badge Plateforme */}
-                    <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-1">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-100 font-mono">
-                        Plateforme : <strong>{live.platform}</strong>
-                      </span>
-                      <span>👁️ {live.view_count || 0} clics</span>
+                    {/* Meta */}
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                      <span>Canal : {live.platform}</span>
+                      <span>{live.view_count || 0} consultations</span>
                     </div>
                   </div>
 
-                  {/* Boutons d'action : DIRECTS ET SANS DÉTOUR */}
-                  <div className="p-4 bg-zinc-50 border-t border-zinc-100 space-y-2">
+                  {/* Boutons d'action rapides */}
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-2">
                     <button
                       type="button"
                       onClick={() => handleTrackClick(live.id, live.live_url)}
-                      className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow transition-transform active:scale-95"
+                      className="w-full py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shadow-xs"
                     >
-                      <Radio className="w-4 h-4 animate-pulse" />
-                      <span>Rejoindre le direct</span>
-                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                      <span>Rejoindre le direct ({live.platform})</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                     </button>
 
                     <div className="grid grid-cols-2 gap-2">
@@ -466,20 +414,21 @@ export default function CommunityLivesPage() {
                         href={waLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-sm"
+                        className="py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>WhatsApp</span>
+                        <span>Commander (WhatsApp)</span>
                       </a>
                       <a
                         href={`tel:${live.phone || live.whatsapp}`}
-                        className="py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
+                        className="py-2 rounded-lg bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-colors"
                       >
-                        <Phone className="w-3.5 h-3.5" />
+                        <Phone className="w-3.5 h-3.5 text-slate-500" />
                         <span>Appeler</span>
                       </a>
                     </div>
                   </div>
+
                 </div>
               );
             })}
@@ -488,117 +437,117 @@ export default function CommunityLivesPage() {
       </section>
 
       {/* =====================================================================
-          4. MODAL D'INSCRIPTION ULTRA-SIMPLE ("Moins de textes, beaucoup d'actions")
+          4. MODAL DE SOUMISSION ÉPURÉ & ACCESSIBLE
       ===================================================================== */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-zinc-200 my-8">
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-lg w-full p-6 sm:p-7 shadow-xl border border-slate-200 my-8">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#F26513]">
-                  Direct Panafricain
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#F26513]">
+                  Vente en direct
                 </span>
-                <h3 className="font-display font-extrabold text-xl text-zinc-950">
-                  Diffuser mon Live sur OCD LIVE
+                <h3 className="font-semibold text-lg text-slate-950">
+                  Diffuser mon direct sur OCD LIVE
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="text-zinc-400 hover:text-zinc-700 text-2xl font-bold p-1"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-md"
+                aria-label="Fermer"
               >
-                &times;
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {submitSuccess ? (
               <div className="py-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-10 h-10" />
+                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
+                  <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="font-display font-bold text-xl text-zinc-900">
-                  Votre live a bien été envoyé !
+                <h4 className="font-semibold text-lg text-slate-900">
+                  Lien de direct enregistré
                 </h4>
-                <p className="text-sm text-zinc-600 leading-relaxed max-w-md mx-auto">
-                  {submitSuccess} Nos modérateurs à Lomé (Boovan Group) vérifient votre direct. Dès validation, votre stream s'affiche pour toute l'Afrique.
+                <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+                  {submitSuccess} Nos modérateurs à Lomé (Boovan Group) vérifient la conformité de votre stream durant le créneau actif.
                 </p>
-                <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-700 text-left space-y-1.5">
-                  <p><strong>Abonnement : 5 000 FCFA / mois</strong></p>
-                  <p>Pour activer votre forfait illimité 30 jours, réglez par T-Money, Flooz (+228 90 00 00 00) ou Wave / Orange Money.</p>
+                <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 text-left space-y-1">
+                  <p className="font-semibold">Tarif d'abonnement : 5 000 FCFA / mois</p>
+                  <p className="text-slate-500">Pour activer votre accès illimité 30 jours, effectuez votre règlement par T-Money, Flooz (+228 90 00 00 00) ou Wave / Orange Money.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-6 py-3 rounded-xl bg-[#F26513] text-white font-bold text-xs uppercase tracking-wider"
+                  className="px-5 py-2.5 rounded-lg bg-slate-900 text-white font-medium text-xs"
                 >
-                  Fermer et voir les directs
+                  Fermer
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmitLive} className="pt-4 space-y-4">
+              <form onSubmit={handleSubmitLive} className="pt-4 space-y-3.5 text-xs">
                 {submitError && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                  <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{submitError}</span>
                   </div>
                 )}
 
-                {/* 1. Nom & Nom de boutique */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                      Votre Nom / Prénom *
+                    <label className="block font-medium text-slate-700 mb-1">
+                      Votre nom et prénom *
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="ex: Maman Christine"
+                      placeholder="ex: Christine Lawson"
                       value={formData.seller_name}
                       onChange={(e) => setFormData({ ...formData, seller_name: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
+                    <label className="block font-medium text-slate-700 mb-1">
                       Nom de votre commerce
                     </label>
                     <input
                       type="text"
-                      placeholder="ex: Christine Épices d'Abomey"
+                      placeholder="ex: Épices Bio d'Abomey"
                       value={formData.business_name}
                       onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none"
                     />
                   </div>
                 </div>
 
-                {/* 2. Pays & Catégorie */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                      Votre Pays en Afrique *
+                    <label className="block font-medium text-slate-700 mb-1">
+                      Pays d'origine *
                     </label>
                     <select
                       value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none bg-white"
                     >
                       {AFRICAN_COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
-                          {c.flag} {c.label}
+                          {c.label}
                         </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                      Ce que vous vendez *
+                    <label className="block font-medium text-slate-700 mb-1">
+                      Rayon de produits *
                     </label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none bg-white"
                     >
                       {CATEGORIES.map((cat) => (
                         <option key={cat.id} value={cat.id}>
@@ -609,10 +558,9 @@ export default function CommunityLivesPage() {
                   </div>
                 </div>
 
-                {/* 3. Lien du direct */}
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                    Lien de votre Direct en cours (TikTok, Facebook, Insta...) *
+                  <label className="block font-medium text-slate-700 mb-1">
+                    Lien direct de votre stream en cours *
                   </label>
                   <input
                     type="url"
@@ -620,65 +568,62 @@ export default function CommunityLivesPage() {
                     placeholder="https://www.tiktok.com/@votrecompte/live"
                     value={formData.live_url}
                     onChange={(e) => setFormData({ ...formData, live_url: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none font-mono"
                   />
-                  <span className="text-[11px] text-zinc-500">
-                    Ouvrez votre direct sur votre téléphone, cliquez sur Partager &gt; Copier le lien et collez-le ici.
+                  <span className="text-[11px] text-slate-400 mt-0.5 block">
+                    Copiez le lien de partage depuis l'application TikTok, Facebook ou Instagram.
                   </span>
                 </div>
 
-                {/* 4. WhatsApp & Téléphone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
+                    <label className="block font-medium text-slate-700 mb-1">
                       Numéro WhatsApp (commandes) *
                     </label>
                     <input
                       type="tel"
                       required
-                      placeholder="+229 97 00 00 00"
+                      placeholder="+228 90 00 00 00"
                       value={formData.whatsapp}
                       onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                      Créneau souhaité *
+                    <label className="block font-medium text-slate-700 mb-1">
+                      Créneau de passage *
                     </label>
                     <select
                       value={formData.time_slot}
                       onChange={(e) => setFormData({ ...formData, time_slot: e.target.value })}
-                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm bg-white"
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none bg-white"
                     >
-                      <option value="MATIN">☀️ Matin (08h00 - 11h00 GMT)</option>
-                      <option value="SOIR">🌙 Soir (18h00 - 21h00 GMT)</option>
+                      <option value="MATIN">Matin (08h00 - 11h00 GMT)</option>
+                      <option value="SOIR">Soir (18h00 - 21h00 GMT)</option>
                     </select>
                   </div>
                 </div>
 
-                {/* 5. Description brève */}
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 uppercase tracking-wider mb-1">
-                    Que présentez-vous aujourd'hui ? (Court)
+                  <label className="block font-medium text-slate-700 mb-1">
+                    Description brève de la vente
                   </label>
                   <textarea
                     rows={2}
-                    placeholder="ex: Direct piment pur d'Abomey et crevettes séchées, réduction spéciale aujourd'hui !"
+                    placeholder="ex: Vente spéciale piment pur d'Abomey et crevettes séchées en direct."
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-zinc-300 focus:border-[#F26513] focus:outline-none text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] focus:outline-none"
                   />
                 </div>
 
-                {/* Encadré explicatif abonnement 5 000 FCFA */}
-                <div className="p-3.5 rounded-xl bg-orange-50 border border-orange-200 text-xs text-orange-950 space-y-1">
-                  <div className="font-bold flex items-center gap-1.5 text-[#F26513]">
-                    <Sparkles className="w-4 h-4" /> Formule 5 000 FCFA / mois (~166 F / jour)
+                <div className="p-3 rounded-lg bg-orange-50/70 border border-orange-200 text-slate-700 space-y-1">
+                  <div className="font-semibold text-slate-900">
+                    Formule de diffusion : 5 000 FCFA / mois
                   </div>
-                  <p className="text-zinc-700 leading-relaxed">
-                    Accès à nos 2 créneaux quotidiens de validation par l'équipe Boovan Group pour propulser vos directs devant toute l'Afrique.
+                  <p className="text-[11px] text-slate-600">
+                    Validation continue par la direction de Boovan Group pour relayer vos passages devant l'audience panafricaine.
                   </p>
                 </div>
 
@@ -686,16 +631,9 @@ export default function CommunityLivesPage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+                    className="w-full py-2.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-medium text-xs flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
                   >
-                    {submitting ? (
-                      <span>Envoi en cours...</span>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Envoyer mon live pour validation</span>
-                      </>
-                    )}
+                    {submitting ? 'Transmission en cours...' : 'Transmettre mon direct pour validation'}
                   </button>
                 </div>
               </form>
@@ -703,6 +641,7 @@ export default function CommunityLivesPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

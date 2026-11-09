@@ -30,7 +30,9 @@ import {
   RefreshCw,
   ShoppingBag,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '../data/media';
 import { fetchJson } from '../utils/api';
@@ -42,7 +44,7 @@ export default function AdminPage({ onConfigUpdated }) {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard | reservations | calendar | packages | recruitment | notifications | settings
+  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard | reservations | community_lives | shop | calendar | packages | recruitment | notifications | settings
 
   // Données chargées
   const [dashboardData, setDashboardData] = useState(null);
@@ -85,7 +87,7 @@ export default function AdminPage({ onConfigUpdated }) {
     payment_status: ''
   });
 
-  // Vue Calendrier Admin (Jour / Semaine / Mois)
+  // Vue Calendrier Admin
   const [calViewMode, setCalViewMode] = useState('MONTH'); // 'DAY' | 'WEEK' | 'MONTH'
   const [calSelectedDate, setCalSelectedDate] = useState(() => {
     const d = new Date();
@@ -123,7 +125,7 @@ export default function AdminPage({ onConfigUpdated }) {
         body: JSON.stringify({ target_email: testEmailAddress })
       });
       setTestEmailResult(data.message || 'E-mail envoyé.');
-      showToast('E-mail de test déclenché.');
+      showToast('E-mail de test envoyé avec succès.');
       await loadAllAdminData();
     } catch (err) {
       setTestEmailResult(`Erreur : ${err.message}`);
@@ -144,7 +146,6 @@ export default function AdminPage({ onConfigUpdated }) {
     setTimeout(() => setStatusFeedback(''), 4000);
   }
 
-  // Vérification initiale du jeton
   useEffect(() => {
     if (!token) {
       setAdminUser(null);
@@ -204,7 +205,7 @@ export default function AdminPage({ onConfigUpdated }) {
       setToken(data.token);
       setAdminUser(data.user);
     } catch (err) {
-      setLoginError(err.message);
+      setLoginError(err.message || 'Identifiants invalides');
     }
   }
 
@@ -214,7 +215,6 @@ export default function AdminPage({ onConfigUpdated }) {
     setAdminUser(null);
   }
 
-  // Filtrage côté client instantané + multi-critères des réservations
   const filteredReservations = useMemo(() => {
     return reservations.filter((r) => {
       if (resFilter.search) {
@@ -238,7 +238,6 @@ export default function AdminPage({ onConfigUpdated }) {
     });
   }, [reservations, resFilter]);
 
-  // Export CSV / Excel compatible UTF-8 BOM
   function handleExportExcelCsv() {
     const headers = [
       'Reference',
@@ -298,12 +297,10 @@ export default function AdminPage({ onConfigUpdated }) {
     URL.revokeObjectURL(url);
   }
 
-  // Export / Impression PDF officiel d'une fiche ou de la liste
   function handlePrintPdf() {
     window.print();
   }
 
-  // Mise à jour d'une réservation
   async function handleUpdateReservation(id, updates) {
     try {
       const data = await fetchJson(`/api/admin/reservations/${id}`, {
@@ -319,7 +316,6 @@ export default function AdminPage({ onConfigUpdated }) {
     }
   }
 
-  // Sauvegarder horaires hebdomadaires
   async function handleSaveWeeklySchedule() {
     try {
       const data = await fetchJson('/api/admin/schedule/weekly', {
@@ -327,14 +323,13 @@ export default function AdminPage({ onConfigUpdated }) {
         headers: authHeaders(),
         body: JSON.stringify({ weekly: scheduleData.weekly })
       });
-      showToast(data.message);
+      showToast(data.message || 'Planning hebdomadaire sauvegardé.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
     }
   }
 
-  // Ajouter une exception calendrier (bloquer une date ou définir des créneaux spéciaux)
   async function handleAddOverride(e) {
     e.preventDefault();
     if (!overrideForm.date_str) return;
@@ -356,7 +351,7 @@ export default function AdminPage({ onConfigUpdated }) {
           custom_slots: customSlots
         })
       });
-      showToast('Configuration de la date enregistrée.');
+      showToast('Exception de calendrier enregistrée.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
@@ -376,7 +371,6 @@ export default function AdminPage({ onConfigUpdated }) {
     }
   }
 
-  // Sauvegarder un forfait (Création ou Modification)
   async function handleSavePackage(e) {
     e.preventDefault();
     if (!editingPackage) return;
@@ -411,43 +405,13 @@ export default function AdminPage({ onConfigUpdated }) {
   }
 
   async function handleDeletePackage(id) {
+    if (!window.confirm('Confirmer la suppression de ce forfait ?')) return;
     try {
       await fetchJson(`/api/admin/packages/${id}`, {
         method: 'DELETE',
         headers: authHeaders()
       });
       showToast('Forfait supprimé.');
-      await loadAllAdminData();
-      if (onConfigUpdated) onConfigUpdated();
-    } catch (err) {
-      alert(err.message);
-    }
-  }
-
-  async function handleCreateAddon(e) {
-    e.preventDefault();
-    try {
-      await fetchJson('/api/admin/addons', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify(newAddonForm)
-      });
-      setNewAddonForm({ name: '', description: '', price_fcfa: 10000, requires_team_validation: false });
-      showToast('Supplément ajouté.');
-      await loadAllAdminData();
-      if (onConfigUpdated) onConfigUpdated();
-    } catch (err) {
-      alert(err.message);
-    }
-  }
-
-  async function handleDeleteAddon(id) {
-    try {
-      await fetchJson(`/api/admin/addons/${id}`, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      showToast('Supplément supprimé.');
       await loadAllAdminData();
       if (onConfigUpdated) onConfigUpdated();
     } catch (err) {
@@ -462,7 +426,7 @@ export default function AdminPage({ onConfigUpdated }) {
         headers: authHeaders(),
         body: JSON.stringify({ status, internal_notes })
       });
-      showToast('Statut de la candidature mis à jour.');
+      showToast('Statut de la candidature actualisé.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
@@ -485,7 +449,6 @@ export default function AdminPage({ onConfigUpdated }) {
     }
   }
 
-  // Actions Lives Panafricains
   async function handleUpdateLiveStatus(liveId, newStatus) {
     try {
       await fetchJson(`/api/admin/community-lives/${liveId}`, {
@@ -493,7 +456,7 @@ export default function AdminPage({ onConfigUpdated }) {
         headers: authHeaders(),
         body: JSON.stringify({ status: newStatus })
       });
-      showToast(`Statut du live mis à jour : ${newStatus}`);
+      showToast(`Statut du direct mis à jour : ${newStatus}`);
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
@@ -507,7 +470,7 @@ export default function AdminPage({ onConfigUpdated }) {
         headers: authHeaders(),
         body: JSON.stringify({ has_active_subscription: !currentSub })
       });
-      showToast('Abonnement 5000 F mis à jour.');
+      showToast('Statut de l\'abonnement mis à jour.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
@@ -521,14 +484,13 @@ export default function AdminPage({ onConfigUpdated }) {
         method: 'DELETE',
         headers: authHeaders()
       });
-      showToast('Live supprimé.');
+      showToast('Direct supprimé.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
     }
   }
 
-  // Actions OCD Shop
   async function handleCreateShopProduct(e) {
     e.preventDefault();
     try {
@@ -579,55 +541,53 @@ export default function AdminPage({ onConfigUpdated }) {
         method: 'DELETE',
         headers: authHeaders()
       });
-      showToast('Produit retiré.');
+      showToast('Produit retiré du catalogue.');
       await loadAllAdminData();
     } catch (err) {
       alert(err.message);
     }
   }
 
-  // Écran de connexion Administrateur
+  // Écran de connexion Administrateur épuré et sécurisé
   if (!adminUser) {
     return (
-      <div className="min-h-screen bg-obsidian pt-32 pb-24 px-4 flex items-center justify-center">
-        <div className="max-w-md w-full rounded-3xl bg-anthracite border-2 border-gold-400/40 p-8 sm:p-10 shadow-2xl space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gold-gradient flex items-center justify-center text-obsidian">
-              <Lock className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-gold-400 block">
-                BOOVAN GROUP • ACCÈS SÉCURISÉ
-              </span>
-              <h1 className="font-serif text-2xl font-bold text-white">
-                Back-Office OCD LIVE
-              </h1>
-            </div>
+      <div className="min-h-screen bg-slate-100 py-16 px-4 flex items-center justify-center">
+        <div className="max-w-md w-full rounded-2xl bg-white border border-slate-200 p-8 sm:p-10 shadow-sm space-y-6">
+          <div className="space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+              Boovan Group • Espace sécurisé
+            </span>
+            <h1 className="text-2xl font-extrabold text-slate-950">
+              Connexion Back-Office
+            </h1>
+            <p className="text-xs text-slate-600">
+              Accès réservé à la direction et aux régisseurs de la plateforme OCD LIVE.
+            </p>
           </div>
 
           {loginError && (
-            <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
               <span>{loginError}</span>
             </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300 mb-1.5">
-                E-mail Administrateur
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Adresse e-mail
               </label>
               <input
                 type="email"
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-xl bg-obsidian border border-white/15 focus:border-gold-400 outline-none text-white text-sm"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 focus:border-[#F26513] outline-none text-slate-900 text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-zinc-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Mot de passe
               </label>
               <input
@@ -636,22 +596,22 @@ export default function AdminPage({ onConfigUpdated }) {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full px-4 py-3.5 rounded-xl bg-obsidian border border-white/15 focus:border-gold-400 outline-none text-white text-sm"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 focus:border-[#F26513] outline-none text-slate-900 text-sm"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-4 rounded-xl bg-gold-gradient text-obsidian font-display font-extrabold text-xs uppercase tracking-wider shadow-lg"
+              className="w-full py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors shadow-xs"
             >
-              SE CONNECTER AU TABLEAU DE BORD
+              Se connecter au tableau de bord
             </button>
           </form>
 
-          <div className="p-4 rounded-2xl bg-obsidian/80 border border-white/10 text-xs text-zinc-400 space-y-1">
-            <p className="text-gold-300 font-mono font-semibold">Accès Administrateur Initial :</p>
-            <p>E-mail : <code className="text-zinc-200">direction@boovangroup.com</code></p>
-            <p>Mot de passe : <code className="text-zinc-200">OcdLive@Boovan2026!</code></p>
+          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+            <p className="font-semibold text-slate-800">Identifiants par défaut :</p>
+            <p>E-mail : <code className="text-slate-900 font-mono">direction@boovangroup.com</code></p>
+            <p>Mot de passe : <code className="text-slate-900 font-mono">OcdLive@Boovan2026!</code></p>
           </div>
         </div>
       </div>
@@ -661,47 +621,42 @@ export default function AdminPage({ onConfigUpdated }) {
   const kpis = dashboardData?.kpis || {};
 
   return (
-    <div className="min-h-screen bg-obsidian pt-24 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <div className="min-h-screen bg-slate-50 pt-20 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Barre supérieure Back-Office */}
-        <div className="rounded-3xl bg-anthracite border border-gold-400/30 p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gold-gradient flex items-center justify-center text-obsidian font-bold">
-              <Radio className="w-6 h-6" />
+        <div className="rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                Portail de Gestion • Boovan Group
+              </span>
+              <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-mono font-medium">
+                {adminUser.role}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  PORTAIL D'ADMINISTRATION • BOOVAN GROUP
-                </span>
-                <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">
-                  {adminUser.role}
-                </span>
-              </div>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-                Direction & Gestion OCD LIVE
-              </h1>
-            </div>
+            <h1 className="text-2xl font-bold text-slate-950 mt-0.5">
+              Direction OCD LIVE
+            </h1>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {statusFeedback && (
-              <span className="px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono">
+              <span className="px-3.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
                 {statusFeedback}
               </span>
             )}
             <button
               type="button"
               onClick={loadAllAdminData}
-              className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-200 flex items-center gap-2"
+              className="px-3.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-xs font-medium text-slate-700 flex items-center gap-1.5 transition-colors"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-gold-400" />
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
               <span>Actualiser</span>
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="px-4 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-xs font-mono text-red-300 flex items-center gap-2"
+              className="px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-xs font-medium text-rose-700 flex items-center gap-1.5 transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Déconnexion</span>
@@ -709,26 +664,26 @@ export default function AdminPage({ onConfigUpdated }) {
           </div>
         </div>
 
-        {/* Navigation par onglets du Back-Office */}
-        <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
+        {/* Navigation par onglets */}
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
           {[
             { id: 'dashboard', label: 'Vue d\'ensemble & KPI', icon: LayoutDashboard },
             { id: 'reservations', label: `Réservations (${reservations.length})`, icon: FileText },
             {
               id: 'community_lives',
-              label: `Modération Lives (${communityLives.filter((l) => l.status === 'PENDING').length} attente)`,
+              label: `Modération Lives (${communityLives.filter((l) => l.status === 'PENDING').length} en attente)`,
               icon: Radio
             },
             { id: 'shop', label: `OCD Shop (${shopProducts.length})`, icon: ShoppingBag },
-            { id: 'calendar', label: 'Gestion du Calendrier', icon: CalendarIcon },
-            { id: 'packages', label: 'Forfaits & Options', icon: Layers },
-            { id: 'recruitment', label: `Recrutement (${applications.length})`, icon: Users },
+            { id: 'calendar', label: 'Gestion du calendrier', icon: CalendarIcon },
+            { id: 'packages', label: 'Forfaits & Tarifs', icon: Layers },
+            { id: 'recruitment', label: `Candidatures (${applications.length})`, icon: Users },
             {
               id: 'notifications',
-              label: `Notifications (${kpis.unreadNotifications || 0})`,
+              label: `Journal & E-mails (${kpis.unreadNotifications || 0})`,
               icon: Bell
             },
-            { id: 'settings', label: 'Paramètres Généraux', icon: Settings }
+            { id: 'settings', label: 'Paramètres généraux', icon: Settings }
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -737,10 +692,10 @@ export default function AdminPage({ onConfigUpdated }) {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider flex items-center gap-2 transition-all ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
                   active
-                    ? 'bg-gold-gradient text-obsidian shadow-lg'
-                    : 'bg-anthracite text-zinc-300 hover:text-white border border-white/10'
+                    ? 'bg-[#F26513] text-white shadow-xs'
+                    : 'bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -751,87 +706,86 @@ export default function AdminPage({ onConfigUpdated }) {
         </div>
 
         {/* ===================================================================
-            ONGLET 1 : DASHBOARD & STATISTIQUES INTERACTIVES
+            ONGLET 1 : DASHBOARD & KPI
         =================================================================== */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
-            {/* Grille des 9 indicateurs exigés */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 {
                   label: 'Nombre total de réservations',
                   value: kpis.totalReservations ?? 0,
                   sub: 'Toutes périodes confondues',
-                  accent: 'text-white'
+                  accent: 'text-slate-950'
                 },
                 {
                   label: 'Réservations du jour (Lomé)',
                   value: kpis.todayReservations ?? 0,
                   sub: 'Sessions prévues aujourd\'hui',
-                  accent: 'text-gold-300'
+                  accent: 'text-[#F26513]'
                 },
                 {
                   label: 'Réservations à venir',
                   value: kpis.upcomingReservations ?? 0,
                   sub: 'Créneaux futurs actifs',
-                  accent: 'text-emerald-400'
+                  accent: 'text-emerald-700'
                 },
                 {
                   label: 'Réservations confirmées',
                   value: kpis.confirmedReservations ?? 0,
                   sub: 'Validées par l\'administration',
-                  accent: 'text-emerald-400'
+                  accent: 'text-emerald-700'
                 },
                 {
                   label: 'Réservations en attente',
                   value: kpis.pendingReservations ?? 0,
-                  sub: 'En attente de validation',
-                  accent: 'text-amber-300'
+                  sub: 'En attente de vérification',
+                  accent: 'text-amber-800'
                 },
                 {
                   label: 'Réservations annulées',
                   value: kpis.cancelledReservations ?? 0,
                   sub: 'Créneaux libérés',
-                  accent: 'text-red-400'
+                  accent: 'text-rose-700'
                 },
                 {
                   label: 'Chiffre d\'affaires confirmé',
                   value: `${Number(kpis.confirmedRevenueFcfa || 0).toLocaleString('fr-FR')} FCFA`,
-                  sub: 'Paiements vérifiés uniquement',
-                  accent: 'text-gold-300'
+                  sub: 'Règlements encaissés',
+                  accent: 'text-[#F26513]'
                 },
                 {
                   label: 'Paiements en attente',
                   value: `${kpis.pendingPaymentsCount ?? 0} (${Number(kpis.pendingRevenueFcfa || 0).toLocaleString('fr-FR')} FCFA)`,
-                  sub: 'À vérifier avant confirmation',
-                  accent: 'text-amber-300'
+                  sub: 'À rapprocher avant validation',
+                  accent: 'text-amber-800'
                 },
                 {
-                  label: 'Entreprises inscrites',
+                  label: 'Entreprises enregistrées',
                   value: kpis.registeredCompaniesCount ?? 0,
-                  sub: 'Marques et commerces distincts',
-                  accent: 'text-white'
+                  sub: 'Marques et boutiques clientes',
+                  accent: 'text-slate-950'
                 }
               ].map((card, idx) => (
-                <div key={idx} className="p-6 rounded-2xl bg-anthracite border border-white/10 space-y-1.5">
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 block">
+                <div key={idx} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 block">
                     {card.label}
                   </span>
-                  <div className={`font-serif text-3xl font-bold ${card.accent}`}>{card.value}</div>
-                  <p className="text-xs text-zinc-500">{card.sub}</p>
+                  <div className={`text-2xl font-bold ${card.accent}`}>{card.value}</div>
+                  <p className="text-xs text-slate-500">{card.sub}</p>
                 </div>
               ))}
             </div>
 
-            {/* Graphiques de répartition */}
+            {/* Graphiques / Répartitions */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Répartition par Forfait */}
-              <div className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-4">
-                <h3 className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  RÉPARTITION PAR FORFAIT
+              {/* Répartition par forfait */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Répartition par forfait
                 </h3>
                 {(dashboardData?.charts?.packageBreakdown || []).length === 0 ? (
-                  <p className="text-xs text-zinc-500 py-6">Aucune réservation enregistrée pour le moment.</p>
+                  <p className="text-xs text-slate-500 py-6">Aucune réservation pour le moment.</p>
                 ) : (
                   <div className="space-y-3">
                     {dashboardData.charts.packageBreakdown.map((item) => {
@@ -839,11 +793,11 @@ export default function AdminPage({ onConfigUpdated }) {
                       return (
                         <div key={item.name} className="space-y-1">
                           <div className="flex justify-between text-xs">
-                            <span className="text-zinc-200 font-semibold">{item.name}</span>
-                            <span className="font-mono text-gold-300">{item.count} ({pct}%)</span>
+                            <span className="text-slate-800 font-medium">{item.name}</span>
+                            <span className="font-semibold text-slate-900">{item.count} ({pct}%)</span>
                           </div>
-                          <div className="w-full h-2 rounded-full bg-obsidian overflow-hidden">
-                            <div className="h-full bg-gold-gradient" style={{ width: `${Math.max(8, pct)}%` }} />
+                          <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full bg-[#F26513]" style={{ width: `${Math.max(8, pct)}%` }} />
                           </div>
                         </div>
                       );
@@ -852,22 +806,24 @@ export default function AdminPage({ onConfigUpdated }) {
                 )}
               </div>
 
-              {/* Répartition Présentiel vs À Distance */}
-              <div className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-4">
-                <h3 className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  MODE DE PARTICIPATION
+              {/* Mode de participation */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Mode de participation
                 </h3>
-                <div className="space-y-4 pt-2">
+                <div className="space-y-4 pt-1">
                   {(dashboardData?.charts?.modeBreakdown || []).map((m) => {
                     const pct = Math.min(100, Math.round((m.count / Math.max(1, kpis.totalReservations)) * 100));
                     return (
-                      <div key={m.mode} className="space-y-1.5">
+                      <div key={m.mode} className="space-y-1">
                         <div className="flex justify-between text-xs">
-                          <span className="text-zinc-200">{m.mode}</span>
-                          <span className="font-mono text-gold-300">{m.count}</span>
+                          <span className="text-slate-800 font-medium">
+                            {m.mode === 'PRESENTIEL' ? 'Présentiel (Studio Togo)' : 'À distance'}
+                          </span>
+                          <span className="font-semibold text-slate-900">{m.count} ({pct}%)</span>
                         </div>
-                        <div className="w-full h-2.5 rounded-full bg-obsidian overflow-hidden">
-                          <div className="h-full bg-emerald-400" style={{ width: `${Math.max(5, pct)}%` }} />
+                        <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="h-full bg-emerald-600" style={{ width: `${Math.max(5, pct)}%` }} />
                         </div>
                       </div>
                     );
@@ -875,19 +831,19 @@ export default function AdminPage({ onConfigUpdated }) {
                 </div>
               </div>
 
-              {/* Répartition Géographique */}
-              <div className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-4">
-                <h3 className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  PAYS DES ENTREPRENEURS
+              {/* Répartition géographique */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Pays des entrepreneurs
                 </h3>
                 {(dashboardData?.charts?.countryBreakdown || []).length === 0 ? (
-                  <p className="text-xs text-zinc-500 py-6">Aucune donnée géographique disponible.</p>
+                  <p className="text-xs text-slate-500 py-6">Aucune donnée géographique disponible.</p>
                 ) : (
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {dashboardData.charts.countryBreakdown.map((c) => (
-                      <div key={c.country} className="flex items-center justify-between p-2.5 rounded-xl bg-obsidian text-xs">
-                        <span className="text-zinc-200 font-medium">{c.country}</span>
-                        <span className="font-mono text-gold-300 font-bold">{c.count} réserv.</span>
+                      <div key={c.country} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 text-xs">
+                        <span className="text-slate-800 font-medium">{c.country}</span>
+                        <span className="font-semibold text-slate-900">{c.count} session(s)</span>
                       </div>
                     ))}
                   </div>
@@ -898,54 +854,59 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET 2 : GESTION DES RÉSERVATIONS & FICHE DÉTAILLÉE 8 SECTIONS
+            ONGLET 2 : RÉSERVATIONS & FICHE DÉTAILLÉE
         =================================================================== */}
         {activeTab === 'reservations' && (
           <div className="space-y-6">
-            {/* Barre de filtres avancés & Exports */}
-            <div className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-4">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <h2 className="font-serif text-2xl font-bold text-white">
-                  Registre Complet des Réservations
-                </h2>
-                <div className="flex items-center gap-3">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-950">
+                    Registre des réservations
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {filteredReservations.length} dossier(s) affiché(s)
+                  </p>
+                </div>
+                <div className="flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={handleExportExcelCsv}
-                    className="px-4 py-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center gap-2"
+                    className="px-3.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 text-slate-500" />
                     <span>Export Excel (CSV)</span>
                   </button>
                   <button
                     type="button"
                     onClick={handlePrintPdf}
-                    className="px-4 py-2.5 rounded-xl bg-gold-400/15 hover:bg-gold-400/25 border border-gold-400/30 text-gold-300 text-xs font-mono flex items-center gap-2"
+                    className="px-3.5 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors"
                   >
-                    <Printer className="w-4 h-4" />
-                    <span>Export / Imprimer PDF</span>
+                    <Printer className="w-4 h-4 text-slate-500" />
+                    <span>Imprimer / PDF</span>
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+              {/* Filtres multi-critères */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
                 <input
                   type="text"
                   value={resFilter.search}
                   onChange={(e) => setResFilter({ ...resFilter, search: e.target.value })}
-                  placeholder="Rechercher réf, client, entreprise..."
-                  className="lg:col-span-2 px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none focus:border-gold-400"
+                  placeholder="Recherche réf, client, entreprise..."
+                  className="lg:col-span-2 px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
                 <input
                   type="date"
                   value={resFilter.date}
                   onChange={(e) => setResFilter({ ...resFilter, date: e.target.value })}
-                  className="px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
                 <select
                   value={resFilter.mode}
                   onChange={(e) => setResFilter({ ...resFilter, mode: e.target.value })}
-                  className="px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 >
                   <option value="">Tous les modes</option>
                   <option value="PRESENTIEL">Présentiel (Togo)</option>
@@ -954,7 +915,7 @@ export default function AdminPage({ onConfigUpdated }) {
                 <select
                   value={resFilter.booking_status}
                   onChange={(e) => setResFilter({ ...resFilter, booking_status: e.target.value })}
-                  className="px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 >
                   <option value="">Tous statuts dossier</option>
                   <option value="EN_ATTENTE">En attente</option>
@@ -965,104 +926,104 @@ export default function AdminPage({ onConfigUpdated }) {
                 <select
                   value={resFilter.payment_status}
                   onChange={(e) => setResFilter({ ...resFilter, payment_status: e.target.value })}
-                  className="px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none"
+                  className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 >
                   <option value="">Tous paiements</option>
-                  <option value="EN_ATTENTE_PAIEMENT">En attente paiement</option>
+                  <option value="EN_ATTENTE_PAIEMENT">En attente règlement</option>
                   <option value="PREUVE_TRANSMISE">Preuve transmise</option>
                   <option value="PAYE_CONFIRME">Payé & Confirmé</option>
                 </select>
               </div>
             </div>
 
-            {/* Tableau professionnel des réservations */}
-            <div className="rounded-3xl bg-anthracite border border-white/10 overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            {/* Tableau épuré des réservations */}
+            <div className="rounded-2xl bg-white border border-slate-200 overflow-x-auto shadow-xs">
+              <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-white/10 text-[11px] font-mono uppercase tracking-wider text-zinc-400 bg-obsidian/50">
-                    <th className="py-4 px-4">Référence</th>
-                    <th className="py-4 px-4">Entreprise & Client</th>
-                    <th className="py-4 px-4">Date & Horaire (Lomé)</th>
-                    <th className="py-4 px-4">Mode & Pays</th>
-                    <th className="py-4 px-4">Forfait & Montant</th>
-                    <th className="py-4 px-4">Paiement</th>
-                    <th className="py-4 px-4">Statut</th>
-                    <th className="py-4 px-4 text-right">Actions</th>
+                  <tr className="border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-500 bg-slate-50">
+                    <th className="py-3 px-4">Référence</th>
+                    <th className="py-3 px-4">Entreprise & Contact</th>
+                    <th className="py-3 px-4">Date & Horaire (GMT)</th>
+                    <th className="py-3 px-4">Modalité</th>
+                    <th className="py-3 px-4">Forfait & Montant</th>
+                    <th className="py-3 px-4">Paiement</th>
+                    <th className="py-3 px-4">Dossier</th>
+                    <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-xs">
+                <tbody className="divide-y divide-slate-100">
                   {filteredReservations.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="py-12 text-center text-zinc-500">
+                      <td colSpan={8} className="py-12 text-center text-slate-500">
                         Aucune réservation ne correspond aux critères sélectionnés.
                       </td>
                     </tr>
                   ) : (
                     filteredReservations.map((r) => (
-                      <tr key={r.id} className="hover:bg-white/5 transition-colors">
-                        <td className="py-4 px-4 font-mono font-bold text-gold-300">{r.reference}</td>
-                        <td className="py-4 px-4">
-                          <p className="font-bold text-white">{r.company_name}</p>
-                          <p className="text-zinc-400">
+                      <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-bold text-[#F26513]">{r.reference}</td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-semibold text-slate-950">{r.company_name}</p>
+                          <p className="text-slate-500">
                             {r.client_first_name} {r.client_last_name} • {r.client_whatsapp}
                           </p>
                         </td>
-                        <td className="py-4 px-4 font-mono">
-                          <p className="text-white font-semibold">{r.booking_date}</p>
-                          <p className="text-gold-300">
+                        <td className="py-3.5 px-4">
+                          <p className="font-medium text-slate-900">{r.booking_date}</p>
+                          <p className="text-slate-500">
                             {r.start_time.replace(':', 'h')} – {r.end_time.replace(':', 'h')}
                           </p>
                         </td>
-                        <td className="py-4 px-4">
-                          <span className="px-2 py-0.5 rounded bg-white/5 text-zinc-200 font-mono text-[10px]">
-                            {r.participation_mode}
+                        <td className="py-3.5 px-4">
+                          <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px] font-medium">
+                            {r.participation_mode === 'PRESENTIEL' ? 'Présentiel' : 'À distance'}
                           </span>
-                          <p className="text-zinc-400 mt-1">
+                          <p className="text-slate-500 mt-0.5">
                             {r.client_city}, {r.client_country}
                           </p>
                         </td>
-                        <td className="py-4 px-4">
-                          <p className="font-semibold text-white">{r.package_name}</p>
-                          <p className="font-mono text-gold-300">
+                        <td className="py-3.5 px-4">
+                          <p className="font-medium text-slate-900">{r.package_name}</p>
+                          <p className="font-semibold text-slate-700">
                             {r.is_custom_quote
                               ? 'Sur devis'
                               : `${Number(r.total_price_fcfa).toLocaleString('fr-FR')} FCFA`}
                           </p>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3.5 px-4">
                           <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold ${
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                               r.payment_status === 'PAYE_CONFIRME'
-                                ? 'bg-emerald-500/20 text-emerald-300'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : r.payment_status === 'PREUVE_TRANSMISE'
-                                  ? 'bg-blue-500/20 text-blue-300'
-                                  : 'bg-amber-500/20 text-amber-300'
+                                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                  : 'bg-amber-50 text-amber-800 border-amber-200'
                             }`}
                           >
                             {r.payment_status}
                           </span>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-3.5 px-4">
                           <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold ${
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                               r.booking_status === 'CONFIRMEE'
-                                ? 'bg-emerald-500/20 text-emerald-300'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                 : r.booking_status === 'ANNULEE'
-                                  ? 'bg-red-500/20 text-red-300'
-                                  : 'bg-zinc-700 text-zinc-200'
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200'
                             }`}
                           >
                             {r.booking_status}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-right">
+                        <td className="py-3.5 px-4 text-right">
                           <button
                             type="button"
                             onClick={() => setSelectedReservation(r)}
-                            className="px-3.5 py-2 rounded-xl bg-gold-400/15 hover:bg-gold-400 text-gold-300 hover:text-obsidian font-mono font-bold text-xs transition-all inline-flex items-center gap-1.5"
+                            className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-xs transition-colors inline-flex items-center gap-1.5"
                           >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>Fiche complète</span>
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Détails</span>
                           </button>
                         </td>
                       </tr>
@@ -1072,17 +1033,16 @@ export default function AdminPage({ onConfigUpdated }) {
               </table>
             </div>
 
-            {/* Modal / Fiche détaillée du client organisée en 8 sections */}
+            {/* Fiche détaillée du client */}
             {selectedReservation && (
-              <div className="rounded-3xl bg-anthracite border-2 border-gold-400 p-7 sm:p-10 shadow-2xl space-y-8">
-                <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-white/10">
+              <div className="rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
                   <div>
-                    <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                      FICHE DÉTAILLÉE DE LA RÉSERVATION • {selectedReservation.reference}
+                    <span className="text-xs font-mono font-bold text-[#F26513]">
+                      FICHE DE DOSSIER • {selectedReservation.reference}
                     </span>
-                    <h3 className="font-serif text-3xl font-bold text-white mt-1">
-                      {selectedReservation.company_name} — {selectedReservation.client_first_name}{' '}
-                      {selectedReservation.client_last_name}
+                    <h3 className="text-2xl font-bold text-slate-950 mt-0.5">
+                      {selectedReservation.company_name} — {selectedReservation.client_first_name} {selectedReservation.client_last_name}
                     </h3>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1093,9 +1053,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           booking_status: 'CONFIRMEE'
                         })
                       }
-                      className="px-4 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold"
+                      className="px-3.5 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-semibold"
                     >
-                      Confirmer la réservation
+                      Confirmer dossier
                     </button>
                     <button
                       type="button"
@@ -1104,9 +1064,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           payment_status: 'PAYE_CONFIRME'
                         })
                       }
-                      className="px-4 py-2 rounded-xl bg-gold-gradient text-obsidian text-xs font-mono font-bold"
+                      className="px-3.5 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white text-xs font-semibold"
                     >
-                      Valider le Paiement Réel
+                      Valider paiement
                     </button>
                     <button
                       type="button"
@@ -1115,9 +1075,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           send_reminder: true
                         })
                       }
-                      className="px-4 py-2 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-mono"
+                      className="px-3.5 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-semibold"
                     >
-                      Envoyer Rappel Live
+                      Envoyer rappel e-mail
                     </button>
                     <button
                       type="button"
@@ -1126,54 +1086,52 @@ export default function AdminPage({ onConfigUpdated }) {
                           booking_status: 'ANNULEE'
                         })
                       }
-                      className="px-4 py-2 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 text-xs font-mono"
+                      className="px-3.5 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 text-xs font-semibold"
                     >
                       Annuler
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedReservation(null)}
-                      className="px-4 py-2 rounded-xl bg-white/10 text-zinc-300 text-xs font-mono"
+                      className="px-3.5 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200"
                     >
                       Fermer
                     </button>
                   </div>
                 </div>
 
-                {/* Les 8 sections réglementaires de la fiche client */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   {/* 1. Informations personnelles */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      1. Informations personnelles
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      1. Responsable du dossier
                     </h4>
-                    <p><span className="text-zinc-400">Nom & Prénom :</span> {selectedReservation.client_last_name} {selectedReservation.client_first_name}</p>
-                    <p><span className="text-zinc-400">Téléphone :</span> {selectedReservation.client_phone}</p>
-                    <p><span className="text-zinc-400">WhatsApp :</span> {selectedReservation.client_whatsapp}</p>
-                    <p><span className="text-zinc-400">E-mail :</span> {selectedReservation.client_email}</p>
-                    <p><span className="text-zinc-400">Localisation :</span> {selectedReservation.client_address}, {selectedReservation.client_city} ({selectedReservation.client_country})</p>
+                    <p><span className="text-slate-500">Nom et prénom :</span> <strong className="text-slate-900">{selectedReservation.client_last_name} {selectedReservation.client_first_name}</strong></p>
+                    <p><span className="text-slate-500">Téléphone :</span> {selectedReservation.client_phone}</p>
+                    <p><span className="text-slate-500">WhatsApp :</span> {selectedReservation.client_whatsapp}</p>
+                    <p><span className="text-slate-500">E-mail :</span> {selectedReservation.client_email}</p>
+                    <p><span className="text-slate-500">Localisation :</span> {selectedReservation.client_address}, {selectedReservation.client_city} ({selectedReservation.client_country})</p>
                   </div>
 
                   {/* 2. Informations commerciales */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      2. Informations commerciales
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      2. Entreprise & Secteur
                     </h4>
-                    <p><span className="text-zinc-400">Entreprise :</span> {selectedReservation.company_name}</p>
-                    <p><span className="text-zinc-400">Nom commercial :</span> {selectedReservation.trade_name || 'N/A'}</p>
-                    <p><span className="text-zinc-400">Secteur :</span> {selectedReservation.sector}</p>
-                    <p><span className="text-zinc-400">Description :</span> {selectedReservation.activity_description}</p>
+                    <p><span className="text-slate-500">Raison sociale :</span> <strong className="text-slate-900">{selectedReservation.company_name}</strong></p>
+                    <p><span className="text-slate-500">Nom commercial :</span> {selectedReservation.trade_name || 'Non renseigné'}</p>
+                    <p><span className="text-slate-500">Secteur d'activité :</span> {selectedReservation.sector}</p>
+                    <p><span className="text-slate-500">Description :</span> {selectedReservation.activity_description}</p>
                   </div>
 
                   {/* 3. Produits et services */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      3. Produits et services à présenter
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      3. Produits & Fichiers
                     </h4>
-                    <p><span className="text-zinc-400">Produits :</span> {selectedReservation.products_to_present}</p>
-                    <p><span className="text-zinc-400">Quantité approximative :</span> {selectedReservation.approx_products_count}</p>
-                    <p><span className="text-zinc-400">Grille de prix :</span> {selectedReservation.products_price_range || 'Non précisée'}</p>
-                    <p><span className="text-zinc-400">Objectifs du live :</span> {(selectedReservation.live_objectives || []).join(', ')}</p>
+                    <p><span className="text-slate-500">Produits présentés :</span> {selectedReservation.products_to_present}</p>
+                    <p><span className="text-slate-500">Nombre d'articles :</span> {selectedReservation.approx_products_count}</p>
+                    <p><span className="text-slate-500">Grille tarifaire :</span> {selectedReservation.products_price_range || 'Non précisée'}</p>
                     <div className="pt-2 flex flex-wrap gap-2">
                       {selectedReservation.company_logo_url && (
                         <a
@@ -1181,9 +1139,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           download
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-gold-400/15 text-gold-300 border border-gold-400/30"
+                          className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-[#F26513]"
                         >
-                          Télécharger le Logo
+                          Télécharger Logo
                         </a>
                       )}
                       {(selectedReservation.product_photos || []).map((photoUrl, idx) => (
@@ -1193,9 +1151,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           download
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-white/10 text-zinc-200"
+                          className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:border-[#F26513]"
                         >
-                          Photo produit #{idx + 1}
+                          Photo #{idx + 1}
                         </a>
                       ))}
                       {selectedReservation.presentation_video_url && (
@@ -1204,7 +1162,7 @@ export default function AdminPage({ onConfigUpdated }) {
                           download
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300"
+                          className="px-2.5 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200"
                         >
                           Télécharger Vidéo
                         </a>
@@ -1213,82 +1171,70 @@ export default function AdminPage({ onConfigUpdated }) {
                   </div>
 
                   {/* 4. Coordonnées commerciales */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      4. Coordonnées commerciales (Bandeau Live)
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      4. Coordonnées de diffusion
                     </h4>
-                    <p><span className="text-zinc-400">Téléphone commercial :</span> {selectedReservation.business_phone}</p>
-                    <p><span className="text-zinc-400">WhatsApp commercial :</span> {selectedReservation.business_whatsapp}</p>
-                    <p><span className="text-zinc-400">Adresse physique :</span> {selectedReservation.business_address}</p>
-                    <p><span className="text-zinc-400">Ville & Pays :</span> {selectedReservation.business_city}, {selectedReservation.business_country}</p>
+                    <p><span className="text-slate-500">Téléphone public :</span> {selectedReservation.business_phone}</p>
+                    <p><span className="text-slate-500">WhatsApp commandes :</span> {selectedReservation.business_whatsapp}</p>
+                    <p><span className="text-slate-500">Adresse boutique :</span> {selectedReservation.business_address}</p>
+                    <p><span className="text-slate-500">Ville et pays :</span> {selectedReservation.business_city}, {selectedReservation.business_country}</p>
                   </div>
 
-                  {/* 5. Réseaux sociaux */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      5. Réseaux sociaux & Web
-                    </h4>
-                    <p><span className="text-zinc-400">Site Web :</span> {selectedReservation.website_url || 'Non renseigné'}</p>
-                    <p><span className="text-zinc-400">Facebook :</span> {selectedReservation.social_facebook || 'Non renseigné'}</p>
-                    <p><span className="text-zinc-400">Instagram :</span> {selectedReservation.social_instagram || 'Non renseigné'}</p>
-                    <p><span className="text-zinc-400">TikTok :</span> {selectedReservation.social_tiktok || 'Non renseigné'}</p>
-                  </div>
-
-                  {/* 6. Réservation & Programmation */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-3">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      6. Réservation & Créneau (Modifiable)
+                  {/* 5. Programmation modifiable */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      5. Programmation de la session
                     </h4>
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="block text-[10px] text-zinc-400">Date</label>
+                        <label className="block text-[10px] text-slate-500 mb-0.5">Date</label>
                         <input
                           type="date"
                           value={selectedReservation.booking_date}
                           onChange={(e) =>
                             setSelectedReservation({ ...selectedReservation, booking_date: e.target.value })
                           }
-                          className="w-full px-2 py-1.5 rounded bg-anthracite border border-white/15 text-white"
+                          className="w-full px-2 py-1 rounded bg-white border border-slate-300 text-slate-900"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-zinc-400">Début</label>
+                        <label className="block text-[10px] text-slate-500 mb-0.5">Début</label>
                         <input
                           type="text"
                           value={selectedReservation.start_time}
                           onChange={(e) =>
                             setSelectedReservation({ ...selectedReservation, start_time: e.target.value })
                           }
-                          className="w-full px-2 py-1.5 rounded bg-anthracite border border-white/15 text-white"
+                          className="w-full px-2 py-1 rounded bg-white border border-slate-300 text-slate-900"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-zinc-400">Fin</label>
+                        <label className="block text-[10px] text-slate-500 mb-0.5">Fin</label>
                         <input
                           type="text"
                           value={selectedReservation.end_time}
                           onChange={(e) =>
                             setSelectedReservation({ ...selectedReservation, end_time: e.target.value })
                           }
-                          className="w-full px-2 py-1.5 rounded bg-anthracite border border-white/15 text-white"
+                          className="w-full px-2 py-1 rounded bg-white border border-slate-300 text-slate-900"
                         />
                       </div>
                     </div>
-                    <p><span className="text-zinc-400">Forfait :</span> {selectedReservation.package_name}</p>
-                    <p><span className="text-zinc-400">Mode :</span> {selectedReservation.participation_mode}</p>
-                    <p><span className="text-zinc-400">Assistance Studio Togo :</span> {selectedReservation.remote_assistance}</p>
+                    <p><span className="text-slate-500">Forfait :</span> {selectedReservation.package_name}</p>
+                    <p><span className="text-slate-500">Modalité :</span> {selectedReservation.participation_mode}</p>
                   </div>
 
-                  {/* 7. Paiement */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      7. Paiement & Justificatifs
+                  {/* 6. Paiement & Justificatif */}
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      6. Suivi financier
                     </h4>
-                    <p><span className="text-zinc-400">Méthode :</span> {selectedReservation.payment_method}</p>
-                    <p><span className="text-zinc-400">Statut paiement :</span> <strong className="text-gold-300">{selectedReservation.payment_status}</strong></p>
-                    <p><span className="text-zinc-400">Réf. transaction :</span> {selectedReservation.payment_reference || 'Aucune'}</p>
+                    <p><span className="text-slate-500">Méthode :</span> {selectedReservation.payment_method}</p>
+                    <p><span className="text-slate-500">Statut :</span> <strong className="text-[#F26513]">{selectedReservation.payment_status}</strong></p>
+                    <p><span className="text-slate-500">Référence saisie :</span> {selectedReservation.payment_reference || 'Aucune'}</p>
                     <div className="flex items-center gap-2 pt-1">
-                      <label className="text-zinc-400">Montant (FCFA) :</label>
+                      <label className="text-slate-500">Montant (FCFA) :</label>
                       <input
                         type="number"
                         value={selectedReservation.total_price_fcfa}
@@ -1298,52 +1244,54 @@ export default function AdminPage({ onConfigUpdated }) {
                             total_price_fcfa: Number(e.target.value)
                           })
                         }
-                        className="px-2.5 py-1 rounded bg-anthracite border border-white/15 text-white font-mono"
+                        className="px-2 py-1 rounded bg-white border border-slate-300 text-slate-900 font-semibold"
                       />
                     </div>
                     {selectedReservation.payment_proof_url && (
-                      <div className="pt-2">
+                      <div className="pt-1">
                         <a
                           href={selectedReservation.payment_proof_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 inline-block"
+                          className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 inline-block font-medium"
                         >
-                          Consulter / Télécharger la preuve de paiement
+                          Consulter la preuve de règlement
                         </a>
                       </div>
                     )}
                   </div>
 
-                  {/* 8. Notes internes */}
-                  <div className="p-5 rounded-2xl bg-obsidian border border-white/10 space-y-2">
-                    <h4 className="font-mono font-bold uppercase tracking-wider text-gold-400">
-                      8. Notes internes (Administration & Régie)
+                  {/* 7. Notes internes */}
+                  <div className="md:col-span-2 p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                    <h4 className="font-semibold uppercase tracking-wider text-slate-700">
+                      7. Notes internes & Régie
                     </h4>
                     <textarea
-                      rows={4}
+                      rows={3}
                       value={selectedReservation.internal_notes || ''}
                       onChange={(e) =>
                         setSelectedReservation({ ...selectedReservation, internal_notes: e.target.value })
                       }
-                      placeholder="Consignes pour l'animatrice, remarques sur le paiement, test technique..."
-                      className="w-full p-3 rounded-xl bg-anthracite border border-white/15 text-white text-xs outline-none"
+                      placeholder="Consignes régie, tests techniques ou remarques sur l'encaissement..."
+                      className="w-full p-2.5 rounded-lg bg-white border border-slate-300 text-slate-900 text-xs outline-none focus:border-[#F26513]"
                     />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleUpdateReservation(selectedReservation.id, {
-                          booking_date: selectedReservation.booking_date,
-                          start_time: selectedReservation.start_time,
-                          end_time: selectedReservation.end_time,
-                          total_price_fcfa: selectedReservation.total_price_fcfa,
-                          internal_notes: selectedReservation.internal_notes
-                        })
-                      }
-                      className="px-5 py-2.5 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider"
-                    >
-                      Enregistrer les modifications de la fiche
-                    </button>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleUpdateReservation(selectedReservation.id, {
+                            booking_date: selectedReservation.booking_date,
+                            start_time: selectedReservation.start_time,
+                            end_time: selectedReservation.end_time,
+                            total_price_fcfa: selectedReservation.total_price_fcfa,
+                            internal_notes: selectedReservation.internal_notes
+                          })
+                        }
+                        className="px-4 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs transition-colors"
+                      >
+                        Enregistrer les modifications
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1352,19 +1300,452 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET 3 : GESTION DU CALENDRIER (Vues Jour / Semaine / Mois + Horaires)
+            ONGLET 3 : MODÉRATION LIVES DEPUIS CHEZ SOI
+        =================================================================== */}
+        {activeTab === 'community_lives' && (
+          <div className="space-y-6">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                  Directs panafricains • Abonnement 5 000 FCFA / mois
+                </span>
+                <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                  Modération des directs commerciaux
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Créneaux officiels : Matin (08h00 - 11h00 GMT) et Soir (18h00 - 21h00 GMT). Vérifiez le contenu avant de valider la diffusion.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-200">
+                  {communityLives.filter((l) => l.status === 'PENDING').length} en attente
+                </span>
+                <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200">
+                  {communityLives.filter((l) => l.status === 'APPROVED').length} en ligne
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {communityLives.length === 0 ? (
+                <div className="p-12 text-center rounded-2xl bg-white border border-slate-200 text-slate-500 text-xs">
+                  Aucun direct enregistré pour le moment.
+                </div>
+              ) : (
+                communityLives.map((live) => (
+                  <div
+                    key={live.id}
+                    className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded bg-slate-900 text-white text-xs font-semibold">
+                          {live.country}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
+                          {live.category}
+                        </span>
+                        <span className="px-2.5 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-medium">
+                          Créneau : {live.time_slot === 'MATIN' ? 'Matin (08h-11h GMT)' : 'Soir (18h-21h GMT)'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                            live.status === 'APPROVED'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : live.status === 'PENDING'
+                              ? 'bg-amber-50 text-amber-800 border-amber-200'
+                              : live.status === 'REJECTED'
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
+                              : 'bg-slate-100 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {live.status === 'APPROVED' && 'Validé / En ligne'}
+                          {live.status === 'PENDING' && 'En attente de modération'}
+                          {live.status === 'REJECTED' && 'Rejeté'}
+                          {live.status === 'ENDED' && 'Terminé'}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleLiveSubscription(live.id, live.has_active_subscription)}
+                          className={`px-2.5 py-0.5 rounded text-xs border font-medium transition-colors ${
+                            live.has_active_subscription
+                              ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
+                              : 'bg-slate-100 border-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {live.has_active_subscription ? 'Abonnement 5 000 F Actif' : 'Abonnement non réglé'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                      <div>
+                        <span className="text-slate-500 block">Vendeur / Enseigne :</span>
+                        <strong className="text-slate-900 text-sm">{live.business_name}</strong>
+                        <span className="text-slate-500 block">({live.seller_name})</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block">WhatsApp et appel :</span>
+                        <a href={`https://wa.me/${(live.whatsapp || '').replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="text-emerald-700 hover:underline block font-semibold">
+                          {live.whatsapp}
+                        </a>
+                        <span className="text-slate-500">{live.phone}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block">Plateforme & Clics :</span>
+                        <span className="text-slate-900 font-medium">{live.platform}</span>
+                        <span className="text-slate-500 block">{live.view_count || 0} clics générés</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 block">Date de soumission :</span>
+                        <span className="text-slate-700">{live.created_at}</span>
+                      </div>
+                    </div>
+
+                    {live.description && (
+                      <p className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                        {live.description}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-slate-200">
+                      <a
+                        href={live.live_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Vérifier le flux ({live.platform})</span>
+                      </a>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {live.status !== 'APPROVED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'APPROVED')}
+                            className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Valider et afficher</span>
+                          </button>
+                        )}
+
+                        {live.status !== 'REJECTED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'REJECTED')}
+                            className="px-3.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            <span>Rejeter</span>
+                          </button>
+                        )}
+
+                        {live.status === 'APPROVED' && (
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateLiveStatus(live.id, 'ENDED')}
+                            className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs"
+                          >
+                            <span>Marquer comme terminé</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLive(live.id)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ===================================================================
+            ONGLET 4 : CATALOGUE OCD SHOP
+        =================================================================== */}
+        {activeTab === 'shop' && (
+          <div className="space-y-6">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                  Boutique officielle OCD Shop
+                </span>
+                <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                  Catalogue des produits ({shopProducts.length} articles)
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Gérez la mise en avant des produits présentés lors des directs.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowAddProductModal(true)}
+                className="px-4 py-2.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Ajouter un article</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {shopProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="rounded-2xl bg-white border border-slate-200 overflow-hidden flex flex-col justify-between shadow-xs"
+                >
+                  <div>
+                    <div className="relative h-44 bg-slate-100 overflow-hidden">
+                      <img
+                        src={p.image_url || '/brand/ocd-plateau-afrique.jpg'}
+                        alt={p.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/brand/ocd-plateau-afrique.jpg';
+                        }}
+                      />
+                      {p.badge && (
+                        <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-[#F26513] text-white text-[10px] font-bold uppercase">
+                          {p.badge}
+                        </span>
+                      )}
+                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded bg-white/90 text-slate-800 text-[11px] font-semibold">
+                        {p.country}
+                      </span>
+                    </div>
+
+                    <div className="p-5 space-y-2">
+                      <span className="text-[11px] font-semibold text-slate-500 uppercase">
+                        {p.category}
+                      </span>
+                      <h3 className="font-bold text-base text-slate-950 line-clamp-1">
+                        {p.title}
+                      </h3>
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {p.description}
+                      </p>
+                      <div className="pt-2 flex items-baseline justify-between border-t border-slate-100">
+                        <span className="text-lg font-bold text-slate-950">
+                          {p.price_fcfa.toLocaleString('fr-FR')} FCFA
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          {p.seller_name}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleProductStock(p.id, p.in_stock)}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold border ${
+                        p.in_stock
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-slate-200 text-slate-600 border-slate-300'
+                      }`}
+                    >
+                      {p.in_stock ? 'En stock' : 'Épuisé'}
+                    </button>
+
+                    <div className="flex items-center gap-1.5">
+                      <a
+                        href={`https://wa.me/${(p.whatsapp || '').replace(/[^0-9]/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 rounded bg-white border border-slate-300 hover:border-emerald-500 text-slate-700 text-xs font-medium"
+                      >
+                        WhatsApp
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(p.id)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 transition-colors"
+                        title="Retirer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal ajout d'article */}
+            {showAddProductModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 backdrop-blur-xs p-4 overflow-y-auto">
+                <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-4 my-8 shadow-xl">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                    <h3 className="text-lg font-bold text-slate-950">
+                      Ajouter un article au catalogue
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddProductModal(false)}
+                      className="text-slate-400 hover:text-slate-700 text-xl font-bold"
+                    >
+                      &times;
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateShopProduct} className="space-y-3.5 text-xs">
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-medium">Titre de l'article *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ex. Chemise brodée lin blanc"
+                        value={newProductForm.title}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, title: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">Prix en FCFA *</label>
+                        <input
+                          type="number"
+                          required
+                          value={newProductForm.price_fcfa}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, price_fcfa: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">Badge visuel</label>
+                        <input
+                          type="text"
+                          placeholder="Ex. NOUVEAU, PROMOTION..."
+                          value={newProductForm.badge}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, badge: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">Catégorie *</label>
+                        <select
+                          value={newProductForm.category}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        >
+                          <option value="Nourriture & Restauration">Nourriture & Restauration</option>
+                          <option value="Mode & Habits">Mode & Habits</option>
+                          <option value="Beauté & Cosmétique">Beauté & Cosmétique</option>
+                          <option value="Électronique & High-Tech">Matériel & Électronique</option>
+                          <option value="Artisanat & Déco">Artisanat & Décoration</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">Pays d'origine *</label>
+                        <select
+                          value={newProductForm.country}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, country: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        >
+                          <option value="Bénin">Bénin</option>
+                          <option value="Cameroun">Cameroun</option>
+                          <option value="Côte d'Ivoire">Côte d'Ivoire</option>
+                          <option value="Togo">Togo</option>
+                          <option value="Sénégal">Sénégal</option>
+                          <option value="Gabon">Gabon</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">Nom du vendeur / Marque *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ex. Maison Bovann"
+                          value={newProductForm.seller_name}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, seller_name: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 mb-1 font-medium">WhatsApp commandes *</label>
+                        <input
+                          type="tel"
+                          required
+                          placeholder="+228 90 00 00 00"
+                          value={newProductForm.whatsapp}
+                          onChange={(e) => setNewProductForm({ ...newProductForm, whatsapp: e.target.value })}
+                          className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-medium">URL de l'image</label>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={newProductForm.image_url}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, image_url: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 mb-1 font-medium">Description</label>
+                      <textarea
+                        rows={2}
+                        value={newProductForm.description}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
+                      />
+                    </div>
+
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        className="w-full py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors shadow-xs"
+                      >
+                        Enregistrer l'article
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================================================================
+            ONGLET 5 : GESTION DU CALENDRIER
         =================================================================== */}
         {activeTab === 'calendar' && (
-          <div className="space-y-8">
-            {/* Sélecteur de vue Calendrier : Journalier, Hebdomadaire, Mensuel */}
-            <div className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-6">
+          <div className="space-y-6">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                    PLANNING OPÉRATIONNEL DU STUDIO (AFRICA/LOME)
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                    Planning studio • Africa/Lome (GMT)
                   </span>
-                  <h2 className="font-serif text-2xl font-bold text-white mt-1">
-                    Consultation du Calendrier : Journalier, Hebdomadaire & Mensuel
+                  <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                    Consultation du calendrier
                   </h2>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1372,7 +1753,7 @@ export default function AdminPage({ onConfigUpdated }) {
                     type="date"
                     value={calSelectedDate}
                     onChange={(e) => setCalSelectedDate(e.target.value)}
-                    className="px-3.5 py-2 rounded-xl bg-obsidian border border-white/15 text-xs text-white"
+                    className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none"
                   />
                   {[
                     { id: 'DAY', label: 'Journalier' },
@@ -1383,10 +1764,10 @@ export default function AdminPage({ onConfigUpdated }) {
                       key={v.id}
                       type="button"
                       onClick={() => setCalViewMode(v.id)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                         calViewMode === v.id
-                          ? 'bg-gold-400 text-obsidian'
-                          : 'bg-obsidian text-zinc-300 border border-white/10'
+                          ? 'bg-[#F26513] text-white'
+                          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                       }`}
                     >
                       {v.label}
@@ -1395,14 +1776,13 @@ export default function AdminPage({ onConfigUpdated }) {
                 </div>
               </div>
 
-              {/* Affichage des réservations selon la vue choisie */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Réservations de la période */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
                 {reservations
                   .filter((r) => {
                     if (r.booking_status === 'ANNULEE') return false;
                     if (calViewMode === 'DAY') return r.booking_date === calSelectedDate;
                     if (calViewMode === 'MONTH') return r.booking_date.slice(0, 7) === calSelectedDate.slice(0, 7);
-                    // WEEK : +/- 3 jours autour de la date
                     const tTarget = new Date(calSelectedDate).getTime();
                     const tBook = new Date(r.booking_date).getTime();
                     return Math.abs(tBook - tTarget) <= 4 * 86400000;
@@ -1414,52 +1794,52 @@ export default function AdminPage({ onConfigUpdated }) {
                         setSelectedReservation(r);
                         setActiveTab('reservations');
                       }}
-                      className="cursor-pointer p-4 rounded-2xl bg-obsidian border border-gold-400/30 hover:border-gold-400 space-y-1.5"
+                      className="cursor-pointer p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-[#F26513] transition-colors space-y-1"
                     >
-                      <div className="flex justify-between text-xs font-mono">
-                        <span className="text-gold-300 font-bold">{r.booking_date}</span>
-                        <span className="text-emerald-400">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-bold text-[#F26513]">{r.booking_date}</span>
+                        <span className="font-medium text-slate-600">
                           {r.start_time.replace(':', 'h')} – {r.end_time.replace(':', 'h')}
                         </span>
                       </div>
-                      <p className="font-bold text-white text-sm">{r.company_name}</p>
-                      <p className="text-xs text-zinc-400">
-                        {r.package_name} • {r.participation_mode}
+                      <p className="font-bold text-slate-950 text-sm">{r.company_name}</p>
+                      <p className="text-xs text-slate-500">
+                        {r.package_name} • {r.participation_mode === 'PRESENTIEL' ? 'Studio Togo' : 'À distance'}
                       </p>
                     </div>
                   ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-              {/* Configuration des horaires hebdomadaires */}
-              <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-anthracite border border-white/10 space-y-5">
-                <div className="flex items-center justify-between">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Horaires hebdomadaires */}
+              <div className="lg:col-span-7 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                   <div>
-                    <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                      DISPONIBILITÉS STANDARDS
-                    </span>
-                    <h3 className="font-serif text-2xl font-bold text-white">
-                      Ouvrir / Fermer les journées et définir les créneaux
+                    <h3 className="text-base font-bold text-slate-950">
+                      Disponibilités hebdomadaires standards
                     </h3>
+                    <p className="text-xs text-slate-500">
+                      Cochez les jours ouverts et indiquez les heures de début de session.
+                    </p>
                   </div>
                   <button
                     type="button"
                     onClick={handleSaveWeeklySchedule}
-                    className="px-5 py-2.5 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors"
                   >
                     <Save className="w-4 h-4" />
-                    <span>Enregistrer</span>
+                    <span>Sauvegarder</span>
                   </button>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {scheduleData.weekly.map((day, idx) => (
                     <div
                       key={day.day_of_week}
-                      className="p-4 rounded-2xl bg-obsidian border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                     >
-                      <label className="flex items-center gap-3 cursor-pointer shrink-0">
+                      <label className="flex items-center gap-2.5 cursor-pointer shrink-0">
                         <input
                           type="checkbox"
                           checked={day.is_open}
@@ -1468,9 +1848,9 @@ export default function AdminPage({ onConfigUpdated }) {
                             next[idx] = { ...day, is_open: e.target.checked };
                             setScheduleData({ ...scheduleData, weekly: next });
                           }}
-                          className="accent-gold-400 w-4 h-4"
+                          className="accent-[#F26513] w-4 h-4"
                         />
-                        <span className="font-display font-bold text-sm text-white w-28">
+                        <span className="font-semibold text-xs text-slate-900 w-24">
                           {day.day_name}
                         </span>
                       </label>
@@ -1488,51 +1868,51 @@ export default function AdminPage({ onConfigUpdated }) {
                           next[idx] = { ...day, slots: slotsArr };
                           setScheduleData({ ...scheduleData, weekly: next });
                         }}
-                        placeholder="Ex: 08:00, 10:00, 12:00, 14:00, 16:00"
-                        className="flex-1 px-3.5 py-2 rounded-xl bg-anthracite border border-white/15 text-xs font-mono text-gold-300 disabled:opacity-40"
+                        placeholder="Ex. 08:00, 10:00, 14:00, 16:00"
+                        className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-slate-300 text-xs text-slate-900 disabled:opacity-50"
                       />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Bloquer une date spécifique ou créer des créneaux sur-mesure */}
-              <div className="lg:col-span-5 p-6 sm:p-8 rounded-3xl bg-anthracite border border-white/10 space-y-5">
-                <div>
-                  <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                    EXCEPTIONS & BLOCAGE DE DATES
-                  </span>
-                  <h3 className="font-serif text-2xl font-bold text-white">
-                    Bloquer une date ou définir des horaires spéciaux
+              {/* Blocage de dates / exceptions */}
+              <div className="lg:col-span-5 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
+                <div className="pb-3 border-b border-slate-200">
+                  <h3 className="text-base font-bold text-slate-950">
+                    Fermeture ou dates d'exception
                   </h3>
+                  <p className="text-xs text-slate-500">
+                    Bloquer un jour férié ou définir des horaires spécifiques.
+                  </p>
                 </div>
 
-                <form onSubmit={handleAddOverride} className="space-y-4">
+                <form onSubmit={handleAddOverride} className="space-y-3 text-xs">
                   <div>
-                    <label className="block text-xs font-mono text-zinc-300 mb-1">Date concernée *</label>
+                    <label className="block text-slate-700 font-medium mb-1">Date concernée *</label>
                     <input
                       type="date"
                       required
                       value={overrideForm.date_str}
                       onChange={(e) => setOverrideForm({ ...overrideForm, date_str: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none"
                     />
                   </div>
 
-                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-zinc-200">
+                  <label className="flex items-center gap-2 cursor-pointer text-slate-700">
                     <input
                       type="checkbox"
                       checked={overrideForm.is_closed}
                       onChange={(e) => setOverrideForm({ ...overrideForm, is_closed: e.target.checked })}
-                      className="accent-gold-400"
+                      className="accent-[#F26513]"
                     />
-                    <span>Fermer complètement cette journée aux réservations</span>
+                    <span>Fermer complètement le studio à cette date</span>
                   </label>
 
                   {!overrideForm.is_closed && (
                     <div>
-                      <label className="block text-xs font-mono text-zinc-300 mb-1">
-                        Créneaux horaires spécifiques (HH:MM séparés par virgule)
+                      <label className="block text-slate-700 font-medium mb-1">
+                        Créneaux spécifiques (séparés par virgule)
                       </label>
                       <input
                         type="text"
@@ -1540,52 +1920,52 @@ export default function AdminPage({ onConfigUpdated }) {
                         onChange={(e) =>
                           setOverrideForm({ ...overrideForm, custom_slots_text: e.target.value })
                         }
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs font-mono text-gold-300"
+                        className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none"
                       />
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-xs font-mono text-zinc-300 mb-1">Motif / Note</label>
+                    <label className="block text-slate-700 font-medium mb-1">Motif</label>
                     <input
                       type="text"
                       value={overrideForm.reason}
                       onChange={(e) => setOverrideForm({ ...overrideForm, reason: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-xs text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider"
+                    className="w-full py-2.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors"
                   >
-                    Appliquer sur le calendrier
+                    Enregistrer l'exception
                   </button>
                 </form>
 
-                <div className="space-y-2 pt-4 border-t border-white/10">
-                  <span className="text-xs font-mono uppercase tracking-wider text-zinc-400 block">
-                    Dates spéciales / bloquées enregistrées :
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">
+                    Exceptions enregistrées :
                   </span>
                   {scheduleData.overrides.length === 0 ? (
-                    <p className="text-xs text-zinc-500">Aucune date bloquée actuellement.</p>
+                    <p className="text-xs text-slate-500">Aucune exception enregistrée.</p>
                   ) : (
                     scheduleData.overrides.map((ov) => (
                       <div
                         key={ov.id}
-                        className="p-3 rounded-xl bg-obsidian border border-white/10 flex items-center justify-between text-xs"
+                        className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
                       >
                         <div>
-                          <span className="font-mono font-bold text-gold-300">{ov.date_str}</span>
-                          <span className="ml-2 text-zinc-400">
-                            {ov.is_closed ? 'Fermé' : `Horaires: ${(ov.custom_slots || []).join(', ')}`}
+                          <span className="font-bold text-slate-900">{ov.date_str}</span>
+                          <span className="ml-2 text-slate-600">
+                            {ov.is_closed ? 'Fermé' : `Créneaux : ${(ov.custom_slots || []).join(', ')}`}
                           </span>
-                          {ov.reason && <p className="text-[11px] text-zinc-500">{ov.reason}</p>}
+                          {ov.reason && <p className="text-[11px] text-slate-500">{ov.reason}</p>}
                         </div>
                         <button
                           type="button"
                           onClick={() => handleDeleteOverride(ov.id)}
-                          className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg"
+                          className="p-1 text-slate-400 hover:text-rose-600"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1599,18 +1979,21 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET 4 : GESTION DES FORFAITS & SUPPLÉMENTS OPTIONNELS
+            ONGLET 6 : FORFAITS & TARIFS
         =================================================================== */}
         {activeTab === 'packages' && (
-          <div className="space-y-10">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-6">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
               <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  CATALOGUE COMMERCIAL ADMINISTRABLE
+                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                  Offres commerciales
                 </span>
-                <h2 className="font-serif text-3xl font-bold text-white">
-                  Gestion des Forfaits OCD LIVE
+                <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                  Gestion des forfaits OCD LIVE
                 </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Configurez les tarifs, durées et prestations incluses affichées aux entrepreneurs.
+                </p>
               </div>
               <button
                 type="button"
@@ -1634,45 +2017,45 @@ export default function AdminPage({ onConfigUpdated }) {
                     display_order: packagesData.packages.length + 1
                   })
                 }
-                className="px-5 py-3 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2"
+                className="px-4 py-2.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-xs transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                <span>Créer un nouveau forfait</span>
+                <span>Nouveau forfait</span>
               </button>
             </div>
 
-            {/* Formulaire d'édition ou création d'un forfait */}
+            {/* Formulaire d'édition */}
             {editingPackage && (
               <form
                 onSubmit={handleSavePackage}
-                className="p-7 rounded-3xl bg-anthracite border-2 border-gold-400 space-y-5"
+                className="p-6 rounded-2xl bg-white border-2 border-[#F26513] space-y-4 shadow-sm"
               >
-                <h3 className="font-serif text-2xl font-bold text-white">
-                  {editingPackage.id ? `Modifier ${editingPackage.name}` : 'Nouveau Forfait OCD LIVE'}
+                <h3 className="text-lg font-bold text-slate-950">
+                  {editingPackage.id ? `Modifier : ${editingPackage.name}` : 'Nouveau forfait OCD LIVE'}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div>
-                    <label className="block text-zinc-400 mb-1">Nom du forfait *</label>
+                    <label className="block text-slate-700 font-medium mb-1">Nom du forfait *</label>
                     <input
                       type="text"
                       required
                       value={editingPackage.name}
                       onChange={(e) => setEditingPackage({ ...editingPackage, name: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Durée affichée (ex: 1h30, 1 journée) *</label>
+                    <label className="block text-slate-700 font-medium mb-1">Durée affichée (ex: 1h30, 2h) *</label>
                     <input
                       type="text"
                       required
                       value={editingPackage.duration_label}
                       onChange={(e) => setEditingPackage({ ...editingPackage, duration_label: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Durée en minutes (calcul calendrier) *</label>
+                    <label className="block text-slate-700 font-medium mb-1">Durée en minutes *</label>
                     <input
                       type="number"
                       required
@@ -1680,11 +2063,11 @@ export default function AdminPage({ onConfigUpdated }) {
                       onChange={(e) =>
                         setEditingPackage({ ...editingPackage, duration_minutes: Number(e.target.value) })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Prix FCFA (vide si Sur mesure)</label>
+                    <label className="block text-slate-700 font-medium mb-1">Prix en FCFA (laisser vide si sur devis)</label>
                     <input
                       type="number"
                       value={editingPackage.price_fcfa ?? ''}
@@ -1694,91 +2077,73 @@ export default function AdminPage({ onConfigUpdated }) {
                           price_fcfa: e.target.value === '' ? null : Number(e.target.value)
                         })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Libellé du prix (ex: 15 000 FCFA)</label>
+                    <label className="block text-slate-700 font-medium mb-1">Libellé du tarif (ex: 15 000 FCFA)</label>
                     <input
                       type="text"
                       value={editingPackage.price_label || ''}
                       onChange={(e) => setEditingPackage({ ...editingPackage, price_label: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Badge promotionnel</label>
+                    <label className="block text-slate-700 font-medium mb-1">Badge promotionnel</label>
                     <input
                       type="text"
                       value={editingPackage.badge || ''}
                       onChange={(e) => setEditingPackage({ ...editingPackage, badge: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-zinc-400 mb-1">Sous-titre court</label>
+                    <label className="block text-slate-700 font-medium mb-1">Sous-titre court</label>
                     <input
                       type="text"
                       value={editingPackage.subtitle || ''}
                       onChange={(e) => setEditingPackage({ ...editingPackage, subtitle: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="block text-zinc-400 mb-1">Ordre d'affichage</label>
+                    <label className="block text-slate-700 font-medium mb-1">Ordre d'affichage</label>
                     <input
                       type="number"
                       value={editingPackage.display_order || 1}
                       onChange={(e) =>
                         setEditingPackage({ ...editingPackage, display_order: Number(e.target.value) })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                   <div className="sm:col-span-3">
-                    <label className="block text-zinc-400 mb-1">URL de la photographie</label>
-                    <input
-                      type="text"
-                      value={editingPackage.image_url || ''}
-                      onChange={(e) => setEditingPackage({ ...editingPackage, image_url: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label className="block text-zinc-400 mb-1">Description détaillée</label>
+                    <label className="block text-slate-700 font-medium mb-1">Prestations incluses (1 par ligne)</label>
                     <textarea
-                      rows={2}
-                      value={editingPackage.description || ''}
-                      onChange={(e) => setEditingPackage({ ...editingPackage, description: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                    />
-                  </div>
-                  <div className="sm:col-span-3">
-                    <label className="block text-zinc-400 mb-1">Avantages inclus (1 avantage par ligne)</label>
-                    <textarea
-                      rows={4}
+                      rows={3}
                       value={editingPackage.features_text ?? (editingPackage.features || []).join('\n')}
                       onChange={(e) =>
                         setEditingPackage({ ...editingPackage, features_text: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white font-mono"
+                      className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900"
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-6 text-xs text-zinc-200 pt-2">
-                  <label className="flex items-center gap-2">
+                <div className="flex flex-wrap gap-4 text-xs text-slate-700 pt-1">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editingPackage.is_recommended}
                       onChange={(e) =>
                         setEditingPackage({ ...editingPackage, is_recommended: e.target.checked })
                       }
-                      className="accent-gold-400"
+                      className="accent-[#F26513]"
                     />
-                    <span>Mettre en évidence (Forfait Recommandé)</span>
+                    <span>Forfait recommandé (mis en avant)</span>
                   </label>
-                  <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editingPackage.remote_assistance_included}
@@ -1788,34 +2153,34 @@ export default function AdminPage({ onConfigUpdated }) {
                           remote_assistance_included: e.target.checked
                         })
                       }
-                      className="accent-gold-400"
+                      className="accent-[#F26513]"
                     />
-                    <span>Assistance animatrice Togo incluse gratuitement</span>
+                    <span>Assistance animatrice Lomé incluse d'office</span>
                   </label>
-                  <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={editingPackage.is_active}
                       onChange={(e) =>
                         setEditingPackage({ ...editingPackage, is_active: e.target.checked })
                       }
-                      className="accent-gold-400"
+                      className="accent-[#F26513]"
                     />
                     <span>Forfait visible sur le site</span>
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-2.5 pt-2">
                   <button
                     type="submit"
-                    className="px-6 py-3 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider"
+                    className="px-5 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors"
                   >
-                    Enregistrer le forfait
+                    Enregistrer
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingPackage(null)}
-                    className="px-6 py-3 rounded-xl bg-white/10 text-zinc-200 text-xs font-mono"
+                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-xs font-medium hover:bg-slate-200"
                   >
                     Annuler
                   </button>
@@ -1823,30 +2188,29 @@ export default function AdminPage({ onConfigUpdated }) {
               </form>
             )}
 
-            {/* Liste des forfaits */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {packagesData.packages.map((pkg) => (
                 <div
                   key={pkg.id}
-                  className="rounded-3xl bg-anthracite border border-white/10 p-6 flex flex-col justify-between gap-4"
+                  className="rounded-2xl bg-white border border-slate-200 p-5 flex flex-col justify-between gap-4 shadow-xs"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-gold-400">{pkg.duration_label}</span>
+                      <span className="text-xs font-semibold text-[#F26513]">{pkg.duration_label}</span>
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono ${
-                          pkg.is_active ? 'bg-emerald-500/20 text-emerald-300' : 'bg-red-500/20 text-red-300'
+                        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          pkg.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'
                         }`}
                       >
-                        {pkg.is_active ? 'ACTIF' : 'DÉSACTIVÉ'}
+                        {pkg.is_active ? 'ACTIF' : 'INACTIF'}
                       </span>
                     </div>
-                    <h3 className="font-display font-bold text-lg text-white">{pkg.name}</h3>
-                    <p className="font-serif text-2xl font-bold text-gold-300">{pkg.price_label}</p>
-                    <p className="text-xs text-zinc-400 line-clamp-2">{pkg.subtitle}</p>
+                    <h3 className="font-bold text-base text-slate-950">{pkg.name}</h3>
+                    <p className="text-xl font-bold text-slate-900">{pkg.price_label}</p>
+                    <p className="text-xs text-slate-500 line-clamp-2">{pkg.subtitle}</p>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                  <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
                     <button
                       type="button"
                       onClick={() =>
@@ -1855,14 +2219,14 @@ export default function AdminPage({ onConfigUpdated }) {
                           features_text: (pkg.features || []).join('\n')
                         })
                       }
-                      className="flex-1 py-2 rounded-xl bg-white/10 hover:bg-gold-400 hover:text-obsidian text-xs font-mono font-bold transition-colors"
+                      className="flex-1 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-800 transition-colors"
                     >
                       Modifier
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeletePackage(pkg.id)}
-                      className="p-2 rounded-xl bg-red-500/15 text-red-300 hover:bg-red-500/30"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1874,37 +2238,37 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET 5 : GESTION DES CANDIDATURES RECRUTEMENT
+            ONGLET 7 : CANDIDATURES RECRUTEMENT
         =================================================================== */}
         {activeTab === 'recruitment' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-anthracite border border-white/10">
-              <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                RECRUTEMENT ANIMATRICE STUDIO TOGO
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                Recrutement studio Togo
               </span>
-              <h2 className="font-serif text-2xl font-bold text-white mt-1">
-                Candidatures reçues ({applications.length})
+              <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                Candidatures d'animatrices ({applications.length})
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-4">
               {applications.length === 0 ? (
-                <div className="p-12 rounded-3xl bg-anthracite border border-white/10 text-center text-sm text-zinc-500">
+                <div className="p-12 rounded-2xl bg-white border border-slate-200 text-center text-xs text-slate-500">
                   Aucune candidature reçue pour le moment.
                 </div>
               ) : (
                 applications.map((app) => (
                   <div
                     key={app.id}
-                    className="p-6 rounded-3xl bg-anthracite border border-white/10 space-y-4"
+                    className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <span className="text-xs font-mono text-gold-400">{app.reference}</span>
-                        <h3 className="font-serif text-2xl font-bold text-white">
+                        <span className="text-xs font-mono font-bold text-[#F26513]">{app.reference}</span>
+                        <h3 className="text-xl font-bold text-slate-950 mt-0.5">
                           {app.full_name} {app.age ? `(${app.age} ans)` : ''}
                         </h3>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-xs text-slate-500">
                           {app.city} ({app.country}) • Tél: {app.phone} • WhatsApp: {app.whatsapp} • {app.email}
                         </p>
                       </div>
@@ -1912,9 +2276,9 @@ export default function AdminPage({ onConfigUpdated }) {
                       <select
                         value={app.status}
                         onChange={(e) => handleUpdateApplication(app.id, e.target.value, app.internal_notes)}
-                        className="px-4 py-2 rounded-xl bg-obsidian border border-gold-400/40 text-xs font-mono font-bold text-gold-300"
+                        className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-xs font-semibold text-slate-900"
                       >
-                        <option value="NOUVELLE">Nouvelle candidature</option>
+                        <option value="NOUVELLE">Nouvelle</option>
                         <option value="EN_ETUDE">En étude</option>
                         <option value="PRESELECTIONNEE">Présélectionnée</option>
                         <option value="ACCEPTEE">Acceptée</option>
@@ -1922,25 +2286,25 @@ export default function AdminPage({ onConfigUpdated }) {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                      <div className="p-4 rounded-2xl bg-obsidian border border-white/5">
-                        <span className="text-gold-400 font-mono block mb-1">Présentation personnelle :</span>
-                        <p className="text-zinc-300 leading-relaxed">{app.bio_presentation}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="font-semibold text-slate-800 block">Présentation :</span>
+                        <p className="text-slate-600 leading-relaxed">{app.bio_presentation}</p>
                       </div>
-                      <div className="p-4 rounded-2xl bg-obsidian border border-white/5">
-                        <span className="text-gold-400 font-mono block mb-1">Expérience & Disponibilité :</span>
-                        <p className="text-zinc-300 leading-relaxed">{app.experience_summary}</p>
-                        <p className="text-gold-300 mt-2 font-mono">Disponibilité : {app.availability}</p>
+                      <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <span className="font-semibold text-slate-800 block">Expérience & Disponibilité :</span>
+                        <p className="text-slate-600 leading-relaxed">{app.experience_summary}</p>
+                        <p className="text-slate-800 mt-1.5 font-medium">Disponibilité : {app.availability}</p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 pt-1">
                       {app.cv_url && (
                         <a
                           href={app.cv_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-4 py-2 rounded-xl bg-gold-400/15 text-gold-300 text-xs font-mono"
+                          className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors"
                         >
                           Télécharger le CV
                         </a>
@@ -1950,9 +2314,9 @@ export default function AdminPage({ onConfigUpdated }) {
                           href={app.video_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-4 py-2 rounded-xl bg-blue-500/20 text-blue-300 text-xs font-mono"
+                          className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-colors"
                         >
-                          Visionner la vidéo de présentation
+                          Visionner la vidéo
                         </a>
                       )}
                     </div>
@@ -1964,454 +2328,17 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET LIVES PANAFRICAINS : MODÉRATION & VALIDATION EN DIRECT
-        =================================================================== */}
-        {activeTab === 'community_lives' && (
-          <div className="space-y-6">
-            <div className="p-7 rounded-3xl bg-anthracite border border-white/10 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-[#F26513]">
-                  DIFFUSION COMMERCIALE PANAFRICAINE • 5 000 FCFA / MOIS
-                </span>
-                <h2 className="font-serif text-3xl font-bold text-white mt-1">
-                  Modération des Lives depuis chez soi
-                </h2>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Créneaux : Matin (08h00 - 11h00 GMT) & Soir (18h00 - 21h00 GMT). Vérifiez que le vendeur présente des produits, puis validez pour affichage public.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 text-xs font-mono font-bold">
-                  {communityLives.filter((l) => l.status === 'PENDING').length} en attente
-                </span>
-                <span className="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold">
-                  {communityLives.filter((l) => l.status === 'APPROVED').length} en ligne
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {communityLives.length === 0 ? (
-                <div className="p-12 text-center rounded-3xl bg-anthracite border border-white/10 text-zinc-400">
-                  Aucun live communautaire enregistré pour le moment.
-                </div>
-              ) : (
-                communityLives.map((live) => (
-                  <div
-                    key={live.id}
-                    className="p-6 rounded-3xl bg-anthracite border border-white/10 hover:border-white/20 transition-all space-y-4"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5">
-                        <span className="px-3 py-1 rounded-lg bg-obsidian text-white text-xs font-bold font-mono">
-                          {live.country}
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs font-mono">
-                          {live.category}
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 text-zinc-300 text-xs font-mono">
-                          Créneau : {live.time_slot === 'MATIN' ? '☀️ 08h-11h' : '🌙 18h-21h'}
-                        </span>
-                      </div>
-
-                      {/* Statuts */}
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold font-mono ${
-                            live.status === 'APPROVED'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                              : live.status === 'PENDING'
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                              : live.status === 'REJECTED'
-                              ? 'bg-red-500/20 text-red-300 border border-red-500/40'
-                              : 'bg-zinc-700 text-zinc-300'
-                          }`}
-                        >
-                          {live.status === 'APPROVED' && '🟢 EN LIGNE (VALIDÉ)'}
-                          {live.status === 'PENDING' && '🟡 EN ATTENTE MODÉRATION'}
-                          {live.status === 'REJECTED' && '🔴 REJETÉ'}
-                          {live.status === 'ENDED' && '⚪ TERMINÉ'}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleLiveSubscription(live.id, live.has_active_subscription)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-mono border transition-colors ${
-                            live.has_active_subscription
-                              ? 'bg-gold-400/20 border-gold-400/50 text-gold-300'
-                              : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                          }`}
-                        >
-                          {live.has_active_subscription ? '⭐ Abonnement 5 000 F Actif' : 'Abonnement Inactif'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-                      <div>
-                        <span className="text-zinc-500 block">Vendeur / Marque :</span>
-                        <strong className="text-white text-sm">{live.business_name}</strong>
-                        <span className="text-zinc-400 block">({live.seller_name})</span>
-                      </div>
-                      <div>
-                        <span className="text-zinc-500 block">WhatsApp & Téléphone :</span>
-                        <a href={`https://wa.me/${(live.whatsapp || '').replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline block font-mono">
-                          {live.whatsapp}
-                        </a>
-                        <span className="text-zinc-400 font-mono">{live.phone}</span>
-                      </div>
-                      <div>
-                        <span className="text-zinc-500 block">Plateforme & Clics :</span>
-                        <span className="text-white font-mono">{live.platform}</span>
-                        <span className="text-zinc-400 block font-mono">👁️ {live.view_count || 0} clics générés</span>
-                      </div>
-                      <div>
-                        <span className="text-zinc-500 block">Date de soumission :</span>
-                        <span className="text-zinc-300 font-mono">{live.created_at}</span>
-                      </div>
-                    </div>
-
-                    {live.description && (
-                      <p className="p-3 rounded-xl bg-obsidian border border-white/5 text-xs text-zinc-300 italic">
-                        "{live.description}"
-                      </p>
-                    )}
-
-                    {/* Actions de modération Boovan Group */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10">
-                      <a
-                        href={live.live_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Ouvrir & Vérifier le Live ({live.platform})</span>
-                      </a>
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        {live.status !== 'APPROVED' && (
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateLiveStatus(live.id, 'APPROVED')}
-                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Valider & Diffuser sur le site</span>
-                          </button>
-                        )}
-
-                        {live.status !== 'REJECTED' && (
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateLiveStatus(live.id, 'REJECTED')}
-                            className="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 font-display font-bold text-xs uppercase tracking-wider flex items-center gap-1.5"
-                          >
-                            <XCircle className="w-3.5 h-3.5" />
-                            <span>Rejeter</span>
-                          </button>
-                        )}
-
-                        {live.status === 'APPROVED' && (
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateLiveStatus(live.id, 'ENDED')}
-                            className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-display font-bold text-xs uppercase tracking-wider"
-                          >
-                            <span>Marquer comme Terminé</span>
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteLive(live.id)}
-                          className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ===================================================================
-            ONGLET OCD SHOP : GESTION DU CATALOGUE PRODUITS
-        =================================================================== */}
-        {activeTab === 'shop' && (
-          <div className="space-y-6">
-            <div className="p-7 rounded-3xl bg-anthracite border border-white/10 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-[#F26513]">
-                  MARKETPLACE PANAFRICAINE • PRODUITS CERTIFIÉS
-                </span>
-                <h2 className="font-serif text-3xl font-bold text-white mt-1">
-                  Catalogue OCD Shop ({shopProducts.length} articles)
-                </h2>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Les acheteurs peuvent commander directement auprès de chaque vendeur en un clic WhatsApp.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowAddProductModal(true)}
-                className="px-5 py-3 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Ajouter un article</span>
-              </button>
-            </div>
-
-            {/* Grille des articles Shop */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {shopProducts.map((p) => (
-                <div
-                  key={p.id}
-                  className="rounded-3xl bg-anthracite border border-white/10 overflow-hidden flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="relative h-48 bg-obsidian overflow-hidden">
-                      <img
-                        src={p.image_url || '/brand/ocd-plateau-afrique.jpg'}
-                        alt={p.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/brand/ocd-plateau-afrique.jpg';
-                        }}
-                      />
-                      {p.badge && (
-                        <span className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-[#F26513] text-white text-[10px] font-black uppercase">
-                          {p.badge}
-                        </span>
-                      )}
-                      <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/70 text-white text-xs font-mono">
-                        {p.country}
-                      </span>
-                    </div>
-
-                    <div className="p-5 space-y-2.5">
-                      <span className="text-[11px] font-mono text-gold-400 uppercase">
-                        {p.category}
-                      </span>
-                      <h3 className="font-display font-bold text-base text-white line-clamp-2">
-                        {p.title}
-                      </h3>
-                      <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
-                        {p.description}
-                      </p>
-                      <div className="pt-2 flex items-baseline justify-between border-t border-white/10">
-                        <span className="font-display font-black text-xl text-gold-300">
-                          {p.price_fcfa.toLocaleString('fr-FR')} FCFA
-                        </span>
-                        <span className="text-xs text-zinc-400">
-                          Par {p.seller_name}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-obsidian/60 border-t border-white/10 flex items-center justify-between gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleProductStock(p.id, p.in_stock)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold ${
-                        p.in_stock
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                      }`}
-                    >
-                      {p.in_stock ? 'En Stock' : 'Épuisé'}
-                    </button>
-
-                    <div className="flex items-center gap-2">
-                      <a
-                        href={`https://wa.me/${(p.whatsapp || '').replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-emerald-600/30 text-emerald-300 text-xs font-mono hover:bg-emerald-600/50"
-                      >
-                        WhatsApp
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteProduct(p.id)}
-                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                        title="Supprimer"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Modal d'ajout de produit Shop */}
-            {showAddProductModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
-                <div className="bg-anthracite border border-white/20 rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-4 my-8">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <h3 className="font-serif text-xl font-bold text-white">
-                      Ajouter un article au catalogue OCD Shop
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddProductModal(false)}
-                      className="text-zinc-400 hover:text-white text-2xl font-bold"
-                    >
-                      &times;
-                    </button>
-                  </div>
-
-                  <form onSubmit={handleCreateShopProduct} className="space-y-3.5 text-xs">
-                    <div>
-                      <label className="block text-zinc-300 mb-1">Titre de l'article *</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="ex: Chemise Homme Lin Blanc & Broderie"
-                        value={newProductForm.title}
-                        onChange={(e) => setNewProductForm({ ...newProductForm, title: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-zinc-300 mb-1">Prix en FCFA *</label>
-                        <input
-                          type="number"
-                          required
-                          value={newProductForm.price_fcfa}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, price_fcfa: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white font-mono"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-zinc-300 mb-1">Badge visuel</label>
-                        <input
-                          type="text"
-                          placeholder="ex: EN DIRECT, POPULAIRE..."
-                          value={newProductForm.badge}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, badge: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-zinc-300 mb-1">Catégorie *</label>
-                        <select
-                          value={newProductForm.category}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                        >
-                          <option value="Nourriture & Restauration">Nourriture & Épices</option>
-                          <option value="Mode & Habits">Mode & Habits</option>
-                          <option value="Beauté & Cosmétique">Beauté & Cosmétique</option>
-                          <option value="Électronique & High-Tech">Matériel & High-Tech</option>
-                          <option value="Artisanat & Déco">Artisanat & Déco</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-zinc-300 mb-1">Pays d'origine *</label>
-                        <select
-                          value={newProductForm.country}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, country: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                        >
-                          <option value="Bénin">🇧🇯 Bénin</option>
-                          <option value="Cameroun">🇨🇲 Cameroun</option>
-                          <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
-                          <option value="Togo">🇹🇬 Togo</option>
-                          <option value="Sénégal">🇸🇳 Sénégal</option>
-                          <option value="Gabon">🇬🇦 Gabon</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-zinc-300 mb-1">Nom du vendeur / Marque *</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="ex: Maman Christine"
-                          value={newProductForm.seller_name}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, seller_name: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-zinc-300 mb-1">WhatsApp commandes *</label>
-                        <input
-                          type="tel"
-                          required
-                          placeholder="+228 90 00 00 00"
-                          value={newProductForm.whatsapp}
-                          onChange={(e) => setNewProductForm({ ...newProductForm, whatsapp: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-zinc-300 mb-1">Lien de la photo produit (URL)</label>
-                      <input
-                        type="url"
-                        placeholder="https://..."
-                        value={newProductForm.image_url}
-                        onChange={(e) => setNewProductForm({ ...newProductForm, image_url: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-zinc-300 mb-1">Description courte du produit</label>
-                      <textarea
-                        rows={2}
-                        value={newProductForm.description}
-                        onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-obsidian border border-white/15 text-white"
-                      />
-                    </div>
-
-                    <div className="pt-2">
-                      <button
-                        type="submit"
-                        className="w-full py-3.5 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider shadow-lg"
-                      >
-                        Enregistrer l'article dans le catalogue
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ===================================================================
-            ONGLET 6 : CENTRE DE NOTIFICATIONS & E-MAILS ADMINISTRATIFS
+            ONGLET 8 : NOTIFICATIONS & E-MAILS TRANSACTIONNELS
         =================================================================== */}
         {activeTab === 'notifications' && (
           <div className="space-y-6">
-            <div className="p-6 rounded-3xl bg-anthracite border border-white/10 flex flex-wrap items-center justify-between gap-4">
+            <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
               <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  JOURNAL TRANSACTIONNEL & E-MAILS BOOVAN GROUP
+                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                  Journal transactionnel
                 </span>
-                <h2 className="font-serif text-2xl font-bold text-white mt-1">
-                  Notifications Administratives & Clients
+                <h2 className="text-xl font-bold text-slate-950 mt-0.5">
+                  E-mails et alertes système
                 </h2>
               </div>
               <button
@@ -2423,18 +2350,18 @@ export default function AdminPage({ onConfigUpdated }) {
                   });
                   await loadAllAdminData();
                 }}
-                className="px-4 py-2.5 rounded-xl bg-white/10 text-xs font-mono text-zinc-200"
+                className="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-800 transition-colors"
               >
                 Tout marquer comme lu
               </button>
             </div>
 
-            {/* Test de distribution des e-mails */}
-            <form onSubmit={handleSendTestEmail} className="p-6 rounded-3xl bg-anthracite border border-gold-400/30 space-y-3">
+            {/* Testeur d'envoi d'e-mail */}
+            <form onSubmit={handleSendTestEmail} className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h3 className="font-display font-bold text-sm text-white">Test d'envoi d'e-mail en direct</h3>
-                  <p className="text-xs text-zinc-400">Déclenchez un e-mail transactionnel de test pour contrôler la bonne réception.</p>
+                  <h3 className="font-bold text-sm text-slate-950">Test d'envoi d'e-mail en direct</h3>
+                  <p className="text-xs text-slate-500">Envoyez un e-mail de test immédiat vers l'adresse de votre choix pour vérifier le serveur SMTP.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -2443,42 +2370,42 @@ export default function AdminPage({ onConfigUpdated }) {
                     value={testEmailAddress}
                     onChange={(e) => setTestEmailAddress(e.target.value)}
                     placeholder="email@example.com"
-                    className="px-3.5 py-2 rounded-xl bg-obsidian border border-white/15 text-xs text-white outline-none w-64"
+                    className="px-3 py-2 rounded-lg bg-slate-50 border border-slate-300 text-xs text-slate-900 outline-none w-64"
                   />
                   <button
                     type="submit"
                     disabled={testingEmail}
-                    className="px-4 py-2 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider shrink-0 disabled:opacity-50"
+                    className="px-4 py-2 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors disabled:opacity-50"
                   >
-                    {testingEmail ? 'Envoi...' : 'Envoyer test'}
+                    {testingEmail ? 'Envoi...' : 'Tester'}
                   </button>
                 </div>
               </div>
               {testEmailResult && (
-                <p className="text-xs font-mono text-gold-300 pt-2 border-t border-white/5">{testEmailResult}</p>
+                <p className="text-xs font-medium text-slate-700 pt-2 border-t border-slate-100">{testEmailResult}</p>
               )}
             </form>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {notificationsData.notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`p-6 rounded-3xl border space-y-3 ${
+                  className={`p-5 rounded-2xl border space-y-2 shadow-xs ${
                     Number(n.is_read) === 0
-                      ? 'bg-anthracite border-gold-400/50'
-                      : 'bg-anthracite/60 border-white/10'
+                      ? 'bg-orange-50/50 border-orange-200'
+                      : 'bg-white border-slate-200'
                   }`}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
-                    <span className="px-2.5 py-0.5 rounded bg-gold-400/15 text-gold-300 font-bold">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 font-bold">
                       {n.type}
                     </span>
-                    <span className="text-zinc-400">
+                    <span className="text-slate-500">
                       Destinataire : {n.recipient_email} • {n.created_at}
                     </span>
                   </div>
-                  <h3 className="font-display font-bold text-base text-white">{n.subject}</h3>
-                  <pre className="p-4 rounded-2xl bg-obsidian border border-white/10 text-xs text-zinc-300 font-mono whitespace-pre-wrap leading-relaxed">
+                  <h3 className="font-bold text-sm text-slate-950">{n.subject}</h3>
+                  <pre className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed">
                     {n.body_text}
                   </pre>
                 </div>
@@ -2488,135 +2415,126 @@ export default function AdminPage({ onConfigUpdated }) {
         )}
 
         {/* ===================================================================
-            ONGLET 7 : PARAMÈTRES GÉNÉRAUX DE LA PLATEFORME
+            ONGLET 9 : PARAMÈTRES GÉNÉRAUX
         =================================================================== */}
         {activeTab === 'settings' && (
           <form
             onSubmit={handleSaveSettings}
-            className="p-7 sm:p-10 rounded-3xl bg-anthracite border border-white/10 space-y-6"
+            className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6"
           >
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
               <div>
-                <span className="text-xs font-mono uppercase tracking-widest text-gold-400">
-                  CONFIGURATION GLOBALE
+                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
+                  Configuration système
                 </span>
-                <h2 className="font-serif text-3xl font-bold text-white mt-1">
+                <h2 className="text-xl font-bold text-slate-950 mt-0.5">
                   Paramètres généraux de Boovan Group — OCD LIVE
                 </h2>
               </div>
               <button
                 type="submit"
-                className="px-6 py-3.5 rounded-xl bg-gold-gradient text-obsidian font-display font-bold text-xs uppercase tracking-wider flex items-center gap-2"
+                className="px-5 py-2.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <Save className="w-4 h-4" />
-                <span>Enregistrer la configuration</span>
+                <span>Enregistrer</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <label className="block text-zinc-400 mb-1.5">Nom de l'organisation</label>
+                <label className="block text-slate-700 font-medium mb-1">Nom de l'organisation</label>
                 <input
                   type="text"
                   value={settingsForm.organization_name || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, organization_name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Adresse du Studio (Togo)</label>
+                <label className="block text-slate-700 font-medium mb-1">Adresse physique du studio (Lomé)</label>
                 <input
                   type="text"
                   value={settingsForm.studio_address || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, studio_address: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Numéro de téléphone officiel</label>
+                <label className="block text-slate-700 font-medium mb-1">Numéro de téléphone officiel</label>
                 <input
                   type="text"
                   value={settingsForm.contact_phone || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, contact_phone: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Numéro WhatsApp officiel</label>
+                <label className="block text-slate-700 font-medium mb-1">Numéro WhatsApp officiel</label>
                 <input
                   type="text"
                   value={settingsForm.contact_whatsapp || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, contact_whatsapp: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Adresse e-mail publique</label>
+                <label className="block text-slate-700 font-medium mb-1">Adresse e-mail publique</label>
                 <input
                   type="email"
                   value={settingsForm.contact_email || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, contact_email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">E-mail de réception des notifications Boovan Group</label>
+                <label className="block text-slate-700 font-medium mb-1">E-mail de notification direction</label>
                 <input
                   type="email"
                   value={settingsForm.admin_notification_email || ''}
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, admin_notification_email: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Fuseau horaire du studio</label>
+                <label className="block text-slate-700 font-medium mb-1">Fuseau horaire de référence</label>
                 <input
                   type="text"
                   value={settingsForm.timezone || 'Africa/Lome'}
                   onChange={(e) => setSettingsForm({ ...settingsForm, timezone: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-gold-300 font-mono"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 font-mono outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div>
-                <label className="block text-zinc-400 mb-1.5">Lien Facebook (Promoteur / Officiel)</label>
-                <input
-                  type="text"
-                  value={settingsForm.social_facebook || ''}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, social_facebook: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-zinc-400 mb-1.5">Lien TikTok (@bovann)</label>
+                <label className="block text-slate-700 font-medium mb-1">Lien TikTok (@bovann)</label>
                 <input
                   type="text"
                   value={settingsForm.social_tiktok || ''}
                   onChange={(e) => setSettingsForm({ ...settingsForm, social_tiktok: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-zinc-400 mb-1.5">Instructions de paiement manuel affichées aux clients</label>
+                <label className="block text-slate-700 font-medium mb-1">Consignes de paiement affichées aux entrepreneurs</label>
                 <textarea
                   rows={3}
                   value={settingsForm.payment_manual_instructions || ''}
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, payment_manual_instructions: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-zinc-400 mb-1.5">Conditions générales de réservation OCD LIVE</label>
+                <label className="block text-slate-700 font-medium mb-1">Conditions générales de vente et de diffusion</label>
                 <textarea
-                  rows={5}
+                  rows={4}
                   value={settingsForm.terms_and_conditions || ''}
                   onChange={(e) =>
                     setSettingsForm({ ...settingsForm, terms_and_conditions: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-xl bg-obsidian border border-white/15 text-white"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 outline-none focus:bg-white focus:border-[#F26513]"
                 />
               </div>
             </div>
@@ -2626,4 +2544,3 @@ export default function AdminPage({ onConfigUpdated }) {
     </div>
   );
 }
-
