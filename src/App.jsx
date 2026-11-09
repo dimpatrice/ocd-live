@@ -4,6 +4,8 @@ import { fetchJson } from './utils/api';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AmbientBackground from './components/AmbientBackground';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
+import OcdLoader from './components/OcdLoader';
 import HomePage from './pages/HomePage';
 import BookingPage from './pages/BookingPage';
 import PackagesPage from './pages/PackagesPage';
@@ -24,6 +26,7 @@ export default function App() {
     addons: [],
     studios: []
   });
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const fetchPublicConfig = useCallback(() => {
     fetchJson('/api/public/config')
@@ -34,6 +37,9 @@ export default function App() {
       })
       .catch((err) => {
         console.error('Erreur de chargement de la configuration publique OCD LIVE:', err);
+      })
+      .finally(() => {
+        setInitialLoading(false);
       });
   }, []);
 
@@ -51,7 +57,13 @@ export default function App() {
   let pageView = null;
   const path = router.pathname;
 
-  if (path === '/' || path === '') {
+  if (initialLoading) {
+    pageView = (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <OcdLoader size="fullscreen" text="Chargement de l'univers OCD LIVE..." />
+      </div>
+    );
+  } else if (path === '/' || path === '') {
     pageView = <HomePage packages={config.packages} settings={config.settings} />;
   } else if (path === '/reserver') {
     pageView = (
@@ -85,13 +97,13 @@ export default function App() {
 
   return (
     <RouterContext.Provider value={router}>
-      <div className="relative min-h-screen flex flex-col bg-white text-zinc-900">
+      <div className="relative min-h-screen flex flex-col bg-white text-slate-900 selection:bg-[#F26513] selection:text-white">
         <AmbientBackground />
         <Navbar settings={config.settings} />
         <main className="relative z-10 flex-1">{pageView}</main>
         <Footer settings={config.settings} />
+        <FloatingWhatsApp settings={config.settings} />
       </div>
     </RouterContext.Provider>
   );
 }
-

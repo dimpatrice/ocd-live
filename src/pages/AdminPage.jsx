@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { AFRICAN_COUNTRIES } from '../data/media';
 import { fetchJson } from '../utils/api';
+import { OcdButton, OcdLoader } from '../components/OcdLoader';
 
 export default function AdminPage({ onConfigUpdated }) {
   const [token, setToken] = useState(() => localStorage.getItem('ocd_admin_token') || '');
@@ -43,6 +44,7 @@ export default function AdminPage({ onConfigUpdated }) {
   const [loginEmail, setLoginEmail] = useState('direction@boovangroup.com');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [activeTab, setActiveTab] = useState('dashboard'); // dashboard | reservations | community_lives | shop | calendar | packages | recruitment | notifications | settings
 
@@ -195,6 +197,7 @@ export default function AdminPage({ onConfigUpdated }) {
   async function handleLogin(e) {
     e.preventDefault();
     setLoginError('');
+    setLoggingIn(true);
     try {
       const data = await fetchJson('/api/admin/login', {
         method: 'POST',
@@ -206,6 +209,8 @@ export default function AdminPage({ onConfigUpdated }) {
       setAdminUser(data.user);
     } catch (err) {
       setLoginError(err.message || 'Identifiants invalides');
+    } finally {
+      setLoggingIn(false);
     }
   }
 
@@ -574,7 +579,7 @@ export default function AdminPage({ onConfigUpdated }) {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                 Adresse e-mail
               </label>
               <input
@@ -582,12 +587,12 @@ export default function AdminPage({ onConfigUpdated }) {
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-white border-2 border-slate-300 focus:border-[#F26513] outline-none text-slate-950 text-base font-medium"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-slate-900 mb-1.5">
                 Mot de passe
               </label>
               <input
@@ -596,16 +601,18 @@ export default function AdminPage({ onConfigUpdated }) {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-slate-300 focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-white border-2 border-slate-300 focus:border-[#F26513] outline-none text-slate-950 text-base font-medium"
               />
             </div>
 
-            <button
+            <OcdButton
               type="submit"
-              className="w-full py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors shadow-xs"
+              loading={loggingIn}
+              icon={Lock}
+              className="w-full min-h-[50px] text-sm font-bold"
             >
               Se connecter au tableau de bord
-            </button>
+            </OcdButton>
           </form>
 
           <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">

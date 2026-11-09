@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Check, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Upload, AlertCircle } from 'lucide-react';
 import { fetchJson } from '../utils/api';
+import { OcdButton } from '../components/OcdLoader';
 
 export default function RecruitmentPage() {
   const [form, setForm] = useState({
@@ -33,7 +34,7 @@ export default function RecruitmentPage() {
       const data = await fetchJson('/api/public/upload', { method: 'POST', body: fd });
       setForm((prev) => ({ ...prev, [fieldName]: data.url }));
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(err.message || 'Erreur lors du téléversement du fichier.');
     } finally {
       setUploadingField(null);
     }
@@ -51,43 +52,43 @@ export default function RecruitmentPage() {
       });
       setSubmittedApp(data.application);
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(err.message || 'Impossible d\'enregistrer votre candidature.');
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-14 lg:py-20 text-slate-900">
+    <div className="min-h-screen bg-slate-50 py-12 lg:py-16 text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Présentation du poste */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium">
-              <span>Recrutement Studio • Lomé, Togo</span>
-            </div>
+            <span className="text-xs font-black uppercase tracking-wider text-[#F26513]">
+              Recrutement Studio
+            </span>
 
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-              Rejoignez l'équipe d'animation OCD LIVE
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-950">
+              Rejoignez l'équipe d'animation OCD LIVE à Lomé
             </h1>
 
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              Nous recrutons une animatrice / présentatrice dynamique, éloquente et passionnée par le commerce pour accueillir et accompagner les entrepreneurs lors de leurs émissions en direct.
+              Nous recrutons une animatrice / présentatrice dynamique, souriante et passionnée par le commerce pour animer les émissions en direct et mettre en valeur les produits des commerçants sur le plateau de Lomé.
             </p>
 
-            <div className="p-4 rounded-lg bg-white border border-slate-200 text-xs text-slate-700 space-y-1 shadow-xs">
-              <span className="font-semibold text-slate-900 block">Conditions d'accès :</span>
-              <p>Aucun diplôme spécifique requis. Sens relationnel, excellente élocution et ponctualité indispensables. Poste basé au complexe audiovisuel de Lomé.</p>
+            <div className="p-4 rounded-xl bg-orange-50 border border-orange-200 text-xs sm:text-sm text-slate-800 space-y-1 shadow-xs font-medium">
+              <strong className="block text-slate-950 font-bold">Conditions :</strong>
+              <p>Aucun diplôme spécifique exigé. Bonne élocution, dynamisme, aisance face à la caméra et sens commercial indispensables. Poste basé au complexe de Lomé.</p>
             </div>
           </div>
 
           <div className="lg:col-span-6">
-            <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-100">
+            <div className="rounded-2xl overflow-hidden border-2 border-slate-200 shadow-md bg-slate-100">
               <img
                 src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1000&q=85"
                 alt="Présentatrice au studio"
-                className="w-full h-[400px] object-cover object-top"
+                className="w-full h-[380px] object-cover object-top"
               />
             </div>
           </div>
@@ -95,73 +96,76 @@ export default function RecruitmentPage() {
 
         {/* Profil recherché & Missions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="p-7 rounded-xl bg-white border border-slate-200 space-y-3 shadow-xs">
-            <h2 className="font-semibold text-lg text-slate-950">Profil recherché</h2>
+          <div className="p-6 sm:p-8 rounded-2xl bg-white border-2 border-slate-200 space-y-3 shadow-xs">
+            <h2 className="font-black text-xl text-slate-950">Profil recherché</h2>
             <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700">
-              {[
-                'Résider au Togo (Lomé et agglomération)',
-                'Aisance d\'expression orale et clarté d\'élocution',
-                'Capacité d\'écoute et valorisation des produits exposés',
-                'Dynamisme, esprit d\'équipe et ponctualité',
-                'Sensibilité commerciale et goût du contact humain'
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Excellente élocution en français (connaissance du mina / éwé appréciée)</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Énergie communicative et sens naturel de la vente en direct</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 shrink-0 mt-0.5" />
+                <span>Capacité à interagir avec le public et répondre aux commentaires</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Rigueur, ponctualité et présentation soignée</span>
+              </li>
             </ul>
           </div>
 
-          <div className="p-7 rounded-xl bg-white border border-slate-200 space-y-3 shadow-xs">
-            <h2 className="font-semibold text-lg text-slate-950">Missions principales</h2>
+          <div className="p-6 sm:p-8 rounded-2xl bg-white border-2 border-slate-200 space-y-3 shadow-xs">
+            <h2 className="font-black text-xl text-slate-950">Missions principales</h2>
             <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700">
-              {[
-                'Accueil physique des entrepreneurs au complexe de Lomé',
-                'Briefing et mise en confiance des intervenants avant l\'antenne',
-                'Relance dynamique et démonstration des articles en direct',
-                'Assistance des participants connectés en duplex à distance',
-                'Coordination fluide avec le réalisateur en régie centrale'
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2.5">
-                  <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
+                <span>Accueillir les commerçants et tester les articles avant l'antenne</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
+                <span>Présenter les articles en direct et inciter les spectateurs à commander</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
+                <span>Répéter à l'antenne les coordonnées WhatsApp et prix des articles</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
+                <span>Collaborer avec l'équipe technique de régie Boovan Group</span>
+              </li>
             </ul>
           </div>
         </div>
 
-        {/* Formulaire de candidature */}
-        <div className="max-w-3xl mx-auto rounded-xl bg-white border border-slate-200 p-7 sm:p-9 shadow-xs">
+        {/* Formulaire de candidature direct */}
+        <div className="rounded-2xl bg-white border-2 border-slate-200 p-6 sm:p-10 shadow-xs max-w-3xl mx-auto space-y-6">
+          <div className="pb-3 border-b border-slate-200">
+            <h2 className="text-2xl font-black text-slate-950">
+              Déposer votre candidature
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Remplissez ce formulaire et joignez une courte vidéo de présentation si possible.
+            </p>
+          </div>
+
           {submittedApp ? (
-            <div className="text-center py-8 space-y-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
-                <CheckCircle2 className="w-6 h-6" />
+            <div className="py-8 text-center space-y-4">
+              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
+                <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-semibold text-slate-950">
-                Candidature enregistrée avec succès
-              </h3>
-              <p className="text-xs font-mono text-slate-500">
-                Référence dossier : {submittedApp.reference}
-              </p>
-              <p className="text-sm text-slate-600 max-w-md mx-auto">
-                Merci {submittedApp.full_name}. Votre dossier a été transmis à la direction de Boovan Group. En cas de sélection, notre équipe vous contactera pour un entretien au studio.
+              <h3 className="text-2xl font-black text-slate-950">Candidature bien reçue !</h3>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                Merci {submittedApp.full_name}. Notre équipe de direction à Lomé examine votre profil et vous recontactera par téléphone ou WhatsApp.
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5 text-xs">
-              <div className="pb-3 border-b border-slate-200">
-                <h2 className="text-xl font-semibold text-slate-950">
-                  Formulaire de candidature
-                </h2>
-                <p className="text-slate-500 mt-0.5">
-                  Les champs marqués d'un astérisque (*) sont obligatoires.
-                </p>
-              </div>
-
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               {errorMsg && (
-                <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
@@ -169,174 +173,104 @@ export default function RecruitmentPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Nom et prénom *
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Nom et prénom *</label>
                   <input
                     type="text"
                     required
                     value={form.full_name}
                     onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
+                    placeholder="Ex. Edwige Amouzou"
+                    className="w-full min-h-[46px] px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Âge (facultatif)
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Âge</label>
                   <input
                     type="number"
                     value={form.age}
                     onChange={(e) => setForm({ ...form, age: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
+                    placeholder="Ex. 24"
+                    className="w-full min-h-[46px] px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Numéro de téléphone *
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Téléphone d'appel *</label>
                   <input
                     type="tel"
                     required
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900 font-mono"
+                    placeholder="+228 90 00 00 00"
+                    className="w-full min-h-[46px] px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
-
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Numéro WhatsApp *
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Numéro WhatsApp *</label>
                   <input
                     type="tel"
                     required
                     value={form.whatsapp}
                     onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900 font-mono"
+                    placeholder="+228 90 00 00 00"
+                    className="w-full min-h-[46px] px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
-
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Ville de résidence *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Adresse e-mail *
-                  </label>
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-slate-800 mb-1">Adresse e-mail *</label>
                   <input
                     type="email"
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
+                    placeholder="edwige@example.com"
+                    className="w-full min-h-[46px] px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
-
                 <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Disponibilité pour débuter *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={form.availability}
-                    onChange={(e) => setForm({ ...form, availability: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Présentation personnelle (motivation et atouts) *
-                  </label>
+                  <label className="block font-bold text-slate-800 mb-1">Présentation personnelle (vos motivations) *</label>
                   <textarea
                     rows={3}
                     required
                     value={form.bio_presentation}
                     onChange={(e) => setForm({ ...form, bio_presentation: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
+                    placeholder="Parlez-nous de vous, de votre dynamisme et de ce qui vous attire dans l'animation en direct..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
                   />
                 </div>
+              </div>
 
-                <div className="sm:col-span-2">
-                  <label className="block font-medium text-slate-700 mb-1">
-                    Expérience éventuelle en communication, vente ou accueil *
-                  </label>
-                  <textarea
-                    rows={3}
-                    required
-                    value={form.experience_summary}
-                    onChange={(e) => setForm({ ...form, experience_summary: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 focus:border-[#F26513] focus:ring-1 focus:ring-[#F26513] outline-none text-slate-900"
-                  />
-                </div>
-
-                <div>
-                  <span className="block font-medium text-slate-700 mb-1">
-                    Curriculum Vitae (facultatif)
-                  </span>
-                  <label className="cursor-pointer flex items-center justify-center gap-2 p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 hover:border-slate-400 text-slate-700">
-                    <Upload className="w-4 h-4 text-slate-500" />
-                    <span>
-                      {uploadingField === 'cv_url'
-                        ? 'Téléversement en cours...'
-                        : form.cv_url
-                          ? 'Fichier joint'
-                          : 'Joindre un CV (PDF/Image)'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="application/pdf,image/*"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e.target.files?.[0], 'cv_url')}
-                    />
+              {/* Fichiers CV et Vidéo */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 space-y-1.5">
+                  <span className="font-bold text-slate-800 block">CV (facultatif)</span>
+                  <label className="cursor-pointer flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 hover:border-[#F26513] rounded-xl text-xs text-slate-700 bg-white">
+                    <Upload className="w-4 h-4 text-[#F26513]" />
+                    <span className="truncate">{uploadingField === 'cv_url' ? 'Téléversement...' : form.cv_url ? 'CV joint' : 'Joindre mon CV'}</span>
+                    <input type="file" accept=".pdf,.doc,.docx,image/*" className="hidden" onChange={(e) => handleFileUpload(e.target.files?.[0], 'cv_url')} />
                   </label>
                 </div>
 
-                <div>
-                  <span className="block font-medium text-slate-700 mb-1">
-                    Courte vidéo de présentation (facultatif)
-                  </span>
-                  <label className="cursor-pointer flex items-center justify-center gap-2 p-3 rounded-lg bg-slate-50 border border-dashed border-slate-300 hover:border-slate-400 text-slate-700">
-                    <Upload className="w-4 h-4 text-slate-500" />
-                    <span>
-                      {uploadingField === 'video_url'
-                        ? 'Téléversement en cours...'
-                        : form.video_url
-                          ? 'Vidéo jointe'
-                          : 'Joindre une courte vidéo (MP4/WebM)'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e.target.files?.[0], 'video_url')}
-                    />
+                <div className="p-4 rounded-xl bg-slate-50 border-2 border-slate-200 space-y-1.5">
+                  <span className="font-bold text-slate-800 block">Courte vidéo (recommandé)</span>
+                  <label className="cursor-pointer flex items-center justify-center gap-2 p-3 border-2 border-dashed border-slate-300 hover:border-[#F26513] rounded-xl text-xs text-slate-700 bg-white">
+                    <Upload className="w-4 h-4 text-[#F26513]" />
+                    <span className="truncate">{uploadingField === 'video_url' ? 'Téléversement...' : form.video_url ? 'Vidéo jointe' : 'Vidéo de 30s'}</span>
+                    <input type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={(e) => handleFileUpload(e.target.files?.[0], 'video_url')} />
                   </label>
                 </div>
               </div>
 
-              <div className="pt-2">
-                <button
+              <div className="pt-3">
+                <OcdButton
                   type="submit"
-                  disabled={submitting}
-                  className="w-full py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-medium text-xs shadow-sm transition-colors disabled:opacity-50"
+                  variant="primary"
+                  size="large"
+                  loading={submitting}
+                  loadingText="Envoi en cours..."
+                  className="w-full"
                 >
-                  {submitting ? 'Transmission en cours...' : 'Soumettre ma candidature'}
-                </button>
+                  Envoyer ma candidature
+                </OcdButton>
               </div>
             </form>
           )}

@@ -12,10 +12,14 @@ import {
   Clock,
   Building2,
   User,
-  ShieldCheck
+  ShieldCheck,
+  Radio,
+  Tv,
+  MessageCircle
 } from 'lucide-react';
 import { AFRICAN_COUNTRIES, SECTORS_SHOWCASE, LIVE_OBJECTIVES_OPTIONS } from '../data/media';
 import { fetchJson } from '../utils/api';
+import { OcdButton } from '../components/OcdLoader';
 
 const MONTH_NAMES_FR = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
@@ -351,61 +355,62 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
 
   const stepsMeta = [
     { num: 1, title: 'Modalité' },
-    { num: 2, title: 'Date et créneau' },
+    { num: 2, title: 'Date' },
     { num: 3, title: 'Forfait' },
     { num: 4, title: 'Coordonnées' },
     { num: 5, title: 'Entreprise' },
-    { num: 6, title: 'Validation' }
+    { num: 6, title: 'Confirmation' }
   ];
 
   if (confirmedReservation) {
     return (
       <div className="min-h-screen bg-slate-50 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-2xl bg-white border border-slate-200 p-6 sm:p-10 shadow-xs space-y-6">
+          <div className="rounded-2xl bg-white border-2 border-emerald-500 p-6 sm:p-10 shadow-lg space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
-                  Dossier enregistré
-                </span>
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full mb-1">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Réservation enregistrée</span>
+                </div>
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 mt-1">
-                  Confirmation de votre réservation
+                  Demande confirmée avec succès
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">
-                  Votre demande a bien été transmise à l'administration de Boovan Group.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Notre équipe au studio de Lomé a bien reçu votre demande.
                 </p>
               </div>
-              <div className="bg-orange-50 px-4 py-3 rounded-xl border border-orange-200">
-                <span className="text-[11px] font-medium uppercase text-slate-500 block">
-                  Référence de dossier
+              <div className="bg-orange-50 px-5 py-3.5 rounded-xl border border-orange-200 text-center sm:text-right">
+                <span className="text-[11px] font-bold uppercase text-slate-500 block">
+                  Numéro de dossier
                 </span>
-                <span className="text-lg font-mono font-bold text-[#F26513]">
+                <span className="text-xl font-mono font-black text-[#F26513]">
                   {confirmedReservation.reference}
                 </span>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm leading-relaxed">
-              <strong>Statut actuel : {confirmedReservation.payment_status}</strong> — Votre réservation sera validée définitivement dès vérification de votre règlement par notre équipe à Lomé.
+              <strong>Statut actuel : {confirmedReservation.payment_status}</strong> — Votre créneau sera définitivement bloqué dès vérification de votre règlement par la régie Boovan Group.
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
               <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <h3 className="font-semibold text-xs uppercase text-slate-500">
-                  Créneau et forfait
+                <h3 className="font-bold text-xs uppercase text-slate-500">
+                  Créneau réservé
                 </h3>
-                <p><span className="text-slate-500">Modalité :</span> <strong className="text-slate-900">{confirmedReservation.participation_mode === 'PRESENTIEL' ? 'Présentiel au studio (Lomé)' : 'À distance'}</strong></p>
+                <p><span className="text-slate-500">Modalité :</span> <strong className="text-slate-900">{confirmedReservation.participation_mode === 'PRESENTIEL' ? 'Au studio à Lomé' : 'À distance'}</strong></p>
                 <p><span className="text-slate-500">Date :</span> <strong className="text-slate-900">{confirmedReservation.booking_date}</strong></p>
-                <p><span className="text-slate-500">Horaire (Togo GMT) :</span> <strong className="text-slate-900">{confirmedReservation.start_time.replace(':', 'h')} – {confirmedReservation.end_time.replace(':', 'h')}</strong></p>
+                <p><span className="text-slate-500">Horaire :</span> <strong className="text-slate-900">{confirmedReservation.start_time.replace(':', 'h')} – {confirmedReservation.end_time.replace(':', 'h')} GMT</strong></p>
                 <p><span className="text-slate-500">Forfait :</span> <strong className="text-slate-900">{confirmedReservation.package_name}</strong></p>
-                <p><span className="text-slate-500">Montant total :</span> <strong className="text-[#F26513] font-bold">{confirmedReservation.is_custom_quote ? 'Sur devis' : `${Number(confirmedReservation.total_price_fcfa).toLocaleString('fr-FR')} FCFA`}</strong></p>
+                <p><span className="text-slate-500">Montant :</span> <strong className="text-[#F26513] font-black text-base">{confirmedReservation.is_custom_quote ? 'Sur devis' : `${Number(confirmedReservation.total_price_fcfa).toLocaleString('fr-FR')} FCFA`}</strong></p>
               </div>
 
               <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <h3 className="font-semibold text-xs uppercase text-slate-500">
-                  Client et entreprise
+                <h3 className="font-bold text-xs uppercase text-slate-500">
+                  Entreprise cliente
                 </h3>
-                <p><span className="text-slate-500">Nom complet :</span> <strong className="text-slate-900">{confirmedReservation.client_first_name} {confirmedReservation.client_last_name}</strong></p>
+                <p><span className="text-slate-500">Responsable :</span> <strong className="text-slate-900">{confirmedReservation.client_first_name} {confirmedReservation.client_last_name}</strong></p>
                 <p><span className="text-slate-500">Entreprise :</span> <strong className="text-slate-900">{confirmedReservation.company_name}</strong></p>
                 <p><span className="text-slate-500">Secteur :</span> <strong className="text-slate-900">{confirmedReservation.sector}</strong></p>
                 <p><span className="text-slate-500">Ville et pays :</span> <strong className="text-slate-900">{confirmedReservation.client_city}, {confirmedReservation.client_country}</strong></p>
@@ -416,13 +421,13 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <Link
                 to={`/suivi-reservation?ref=${confirmedReservation.reference}`}
-                className="w-full sm:w-auto px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider text-center transition-colors"
+                className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md"
               >
                 Suivre mon dossier / Joindre un reçu
               </Link>
               <Link
                 to="/"
-                className="w-full sm:w-auto px-6 py-3 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider text-center transition-colors"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider text-center transition-colors"
               >
                 Retour à l'accueil
               </Link>
@@ -435,22 +440,50 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 sm:py-14">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* En-tête sobre */}
-        <div className="mb-8 space-y-1.5">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
-            Réservation officielle OCD LIVE • Fuseau horaire : Africa/Lome (GMT)
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight">
-            Réserver une session de diffusion
-          </h1>
-          <p className="text-sm text-slate-600">
-            Suivez les 6 étapes pour planifier votre passage en direct dans notre studio à Lomé ou à distance.
-          </p>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        
+        {/* En-tête direct et vivant */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
+                Réserver un direct
+              </h1>
+              <p className="text-sm text-slate-600 mt-1">
+                Choisissez votre formule et laissez-vous guider étape par étape.
+              </p>
+            </div>
+
+            {/* Sélecteur de mode immédiat */}
+            <div className="inline-flex p-1.5 rounded-2xl bg-slate-200 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setParticipationMode('PRESENTIEL')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                  participationMode === 'PRESENTIEL'
+                    ? 'bg-[#F26513] text-white shadow-sm'
+                    : 'text-slate-700 hover:text-slate-950'
+                }`}
+              >
+                Au Studio (Lomé)
+              </button>
+              <button
+                type="button"
+                onClick={() => setParticipationMode('DISTANCE')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                  participationMode === 'DISTANCE'
+                    ? 'bg-[#F26513] text-white shadow-sm'
+                    : 'text-slate-700 hover:text-slate-950'
+                }`}
+              >
+                À distance (Afrique)
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Barre de progression des 6 étapes */}
-        <div className="mb-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+        {/* Barre de progression des 6 étapes — Grande lisibilité */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {stepsMeta.map((step) => {
             const isActive = currentStep === step.num;
             const isCompleted = currentStep > step.num;
@@ -466,26 +499,26 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                     validateAndGoNext(step.num);
                   }
                 }}
-                className={`p-3 rounded-xl border text-left transition-colors ${
+                className={`min-h-[56px] p-3 rounded-xl border-2 text-left transition-all ${
                   isActive
-                    ? 'bg-[#F26513] border-[#F26513] text-white shadow-xs'
+                    ? 'bg-[#F26513] border-[#F26513] text-white shadow-md'
                     : isCompleted
-                      ? 'bg-white border-slate-300 text-slate-900 cursor-pointer hover:border-slate-400'
+                      ? 'bg-white border-emerald-500 text-slate-900 cursor-pointer hover:border-emerald-600'
                       : 'bg-white border-slate-200 text-slate-400 cursor-default'
                 }`}
               >
-                <div className="flex items-center justify-between text-[11px] font-bold uppercase">
+                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider">
                   <span>Étape {step.num}</span>
-                  {isCompleted && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                  {isCompleted && <Check className="w-4 h-4 text-emerald-600" />}
                 </div>
-                <p className="text-xs font-medium mt-0.5 truncate">{step.title}</p>
+                <p className="text-xs font-bold mt-0.5 truncate">{step.title}</p>
               </button>
             );
           })}
         </div>
 
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm">
+          <div className="p-4 rounded-xl bg-rose-50 border-2 border-rose-300 text-rose-800 text-sm font-semibold">
             {errorMsg}
           </div>
         )}
@@ -494,81 +527,79 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
         {currentStep === 1 && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
               <div
                 onClick={() => setParticipationMode('PRESENTIEL')}
-                className={`cursor-pointer rounded-2xl bg-white overflow-hidden border-2 transition-all ${
+                className={`cursor-pointer rounded-2xl bg-white overflow-hidden border-3 transition-all ${
                   participationMode === 'PRESENTIEL'
-                    ? 'border-[#F26513] shadow-xs'
+                    ? 'border-[#F26513] shadow-lg ring-2 ring-orange-200'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <div className="h-56 bg-slate-100 overflow-hidden">
+                <div className="h-56 bg-slate-100 overflow-hidden relative">
                   <img
                     src="/brand/ocd-plateau-afrique.jpg"
-                    alt="Présentiel au studio OCD LIVE au Togo"
+                    alt="Au studio OCD LIVE au Togo"
                     className="w-full h-full object-cover"
                   />
+                  {participationMode === 'PRESENTIEL' && (
+                    <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#F26513] text-white text-xs font-black uppercase shadow">
+                      Sélectionné
+                    </span>
+                  )}
                 </div>
                 <div className="p-6 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-[#F26513]">Studio à Lomé</span>
-                    {participationMode === 'PRESENTIEL' && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#F26513] text-white text-[11px] font-semibold">
-                        Sélectionné
-                      </span>
-                    )}
-                  </div>
-                  <h2 className="text-xl font-bold text-slate-950">
-                    Présentiel au studio OCD LIVE au Togo
+                  <span className="text-xs font-black uppercase text-[#F26513]">Formule Studio • Lomé</span>
+                  <h2 className="text-xl font-black text-slate-950">
+                    Venir au Studio à Lomé
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Venez directement dans notre studio professionnel à Lomé avec vos produits. Vous bénéficiez du plateau complet, des caméras professionnelles, de l'éclairage et de l'animatrice sur place.
+                    Vous venez physiquement avec vos articles. Vous profitez du plateau complet, de l'animatrice, des caméras professionnelles 4K et de l'habillage en direct.
                   </p>
                 </div>
               </div>
 
               <div
                 onClick={() => setParticipationMode('DISTANCE')}
-                className={`cursor-pointer rounded-2xl bg-white overflow-hidden border-2 transition-all ${
+                className={`cursor-pointer rounded-2xl bg-white overflow-hidden border-3 transition-all ${
                   participationMode === 'DISTANCE'
-                    ? 'border-[#F26513] shadow-xs'
+                    ? 'border-[#F26513] shadow-lg ring-2 ring-orange-200'
                     : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                <div className="h-56 bg-slate-100 overflow-hidden">
+                <div className="h-56 bg-slate-100 overflow-hidden relative">
                   <img
                     src="/brand/bovann-jeunesse.jpg"
-                    alt="À distance depuis votre pays"
+                    alt="À distance depuis mon pays"
                     className="w-full h-full object-cover object-top"
                   />
+                  {participationMode === 'DISTANCE' && (
+                    <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#F26513] text-white text-xs font-black uppercase shadow">
+                      Sélectionné
+                    </span>
+                  )}
                 </div>
                 <div className="p-6 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase text-[#F26513]">International</span>
-                    {participationMode === 'DISTANCE' && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-[#F26513] text-white text-[11px] font-semibold">
-                        Sélectionné
-                      </span>
-                    )}
-                  </div>
-                  <h2 className="text-xl font-bold text-slate-950">
-                    À distance depuis votre pays
+                  <span className="text-xs font-black uppercase text-emerald-700">Formule Panafricaine</span>
+                  <h2 className="text-xl font-black text-slate-950">
+                    Animer depuis chez moi ou ma boutique
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    Participez depuis votre pays (Cameroun, Bénin, Côte d'Ivoire, Gabon, Sénégal ou diaspora). Notre régie gère l'habillage, l'affichage de vos coordonnées et la diffusion en simultané.
+                    Vous êtes au Cameroun, Bénin, Côte d'Ivoire, Gabon ou ailleurs. Notre régie au Togo habille votre flux vidéo et l'affiche devant des milliers d'acheteurs.
                   </p>
                 </div>
               </div>
+
             </div>
 
             <div className="flex justify-end pt-2">
               <button
                 type="button"
                 onClick={() => validateAndGoNext(2)}
-                className="px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+                className="min-h-[52px] px-8 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md active:scale-95"
               >
-                <span>Étape suivante : Date et créneau</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continuer : Choisir la date</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -578,46 +609,49 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
         {currentStep === 2 && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
               {/* Calendrier */}
               <div className="lg:col-span-7 rounded-2xl bg-white border border-slate-200 p-6 space-y-4 shadow-xs">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                  <h2 className="text-lg font-bold text-slate-950">
+                  <h2 className="text-lg font-black text-slate-950">
                     {MONTH_NAMES_FR[calMonth - 1]} {calYear}
                   </h2>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={handlePrevMonth}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                      className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                      aria-label="Mois précédent"
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       type="button"
                       onClick={handleNextMonth}
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                      className="p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                      aria-label="Mois suivant"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1.5 text-center">
+                <div className="grid grid-cols-7 gap-2 text-center">
                   {WEEKDAYS_SHORT_FR.map((wd) => (
-                    <div key={wd} className="text-xs font-semibold text-slate-400 py-1">
+                    <div key={wd} className="text-xs font-bold text-slate-400 py-1">
                       {wd}
                     </div>
                   ))}
                 </div>
 
                 {loadingCalendar ? (
-                  <div className="py-12 text-center text-xs text-slate-500">
-                    Mise à jour des disponibilités...
+                  <div className="py-14 text-center text-xs font-semibold text-slate-500 animate-pulse">
+                    Vérification des disponibilités du studio...
                   </div>
                 ) : (
-                  <div className="grid grid-cols-7 gap-1.5">
+                  <div className="grid grid-cols-7 gap-2">
                     {calendarGridCells.map((cell, idx) => {
-                      if (!cell) return <div key={`empty-${idx}`} className="h-10" />;
+                      if (!cell) return <div key={`empty-${idx}`} className="h-11" />;
                       const dayNum = Number(cell.date.split('-')[2]);
                       const isSelected = selectedDate === cell.date;
                       const isSelectable = cell.status === 'AVAILABLE';
@@ -625,8 +659,8 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                       let btnStyle = 'bg-slate-50 border-slate-200 text-slate-300 cursor-not-allowed';
                       if (cell.status === 'AVAILABLE') {
                         btnStyle = isSelected
-                          ? 'bg-[#F26513] text-white border-[#F26513] font-bold shadow-xs'
-                          : 'bg-white hover:border-[#F26513] border-slate-200 text-slate-800 cursor-pointer';
+                          ? 'bg-[#F26513] text-white border-[#F26513] font-black shadow-md scale-105'
+                          : 'bg-white hover:border-[#F26513] border-slate-200 text-slate-900 cursor-pointer font-bold';
                       } else if (cell.status === 'FULL') {
                         btnStyle = 'bg-amber-50 border-amber-200 text-amber-700 cursor-not-allowed';
                       }
@@ -640,7 +674,7 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                             setSelectedDate(cell.date);
                             setSelectedSlot(null);
                           }}
-                          className={`h-10 rounded-lg border flex items-center justify-center text-xs font-medium transition-colors ${btnStyle}`}
+                          className={`h-11 rounded-xl border flex items-center justify-center text-xs transition-all ${btnStyle}`}
                         >
                           <span>{dayNum}</span>
                         </button>
@@ -656,16 +690,13 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                   <span className="text-xs font-bold uppercase text-[#F26513]">
                     Créneaux disponibles (GMT)
                   </span>
-                  <h3 className="text-lg font-bold text-slate-950 mt-0.5">
-                    {selectedDate ? `Date : ${selectedDate}` : 'Sélectionnez une date'}
+                  <h3 className="text-lg font-black text-slate-950 mt-0.5">
+                    {selectedDate ? `Date : ${selectedDate}` : 'Cliquez sur une date disponible'}
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Durée prévue : {selectedPackage?.duration_label || '1h30'}
-                  </p>
                 </div>
 
                 {selectedDayObject && selectedDayObject.slots.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {selectedDayObject.slots.map((slot) => {
                       const isChosen = selectedSlot?.startTime === slot.startTime;
                       return (
@@ -674,15 +705,15 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                           type="button"
                           disabled={!slot.available}
                           onClick={() => setSelectedSlot(slot)}
-                          className={`p-3 rounded-lg border text-left transition-colors ${
+                          className={`min-h-[54px] p-3.5 rounded-xl border-2 text-left transition-all ${
                             !slot.available
                               ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
                               : isChosen
-                                ? 'bg-[#F26513] text-white border-[#F26513] font-bold shadow-xs'
-                                : 'bg-slate-50 hover:border-[#F26513] border-slate-200 text-slate-800'
+                                ? 'bg-[#F26513] text-white border-[#F26513] font-black shadow-md'
+                                : 'bg-slate-50 hover:border-[#F26513] border-slate-200 text-slate-900 font-bold'
                           }`}
                         >
-                          <div className="text-xs font-bold">{slot.label}</div>
+                          <div className="text-xs">{slot.label}</div>
                           <div className={`text-[10px] mt-0.5 ${isChosen ? 'text-white/90' : 'text-slate-500'}`}>
                             {slot.available ? 'Disponible' : 'Réservé'}
                           </div>
@@ -691,28 +722,29 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                     })}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 py-10 text-center">
-                    Sélectionnez une date disponible sur le calendrier.
+                  <p className="text-xs text-slate-500 py-12 text-center font-medium">
+                    Sélectionnez une date en vert ou blanc sur le calendrier.
                   </p>
                 )}
               </div>
+
             </div>
 
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold text-xs uppercase tracking-wider"
+                className="min-h-[48px] px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider"
               >
                 Précédent
               </button>
               <button
                 type="button"
                 onClick={() => validateAndGoNext(3)}
-                className="px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+                className="min-h-[52px] px-8 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md active:scale-95"
               >
-                <span>Étape suivante : Choix du forfait</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continuer : Choisir le forfait</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -728,9 +760,9 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                   <div
                     key={pkg.id}
                     onClick={() => setSelectedPackageId(pkg.id)}
-                    className={`cursor-pointer rounded-2xl bg-white overflow-hidden flex flex-col justify-between border-2 transition-all ${
+                    className={`cursor-pointer rounded-2xl bg-white overflow-hidden flex flex-col justify-between border-3 transition-all ${
                       isSelected
-                        ? 'border-[#F26513] shadow-xs'
+                        ? 'border-[#F26513] shadow-lg ring-2 ring-orange-200'
                         : 'border-slate-200 hover:border-slate-300'
                     }`}
                   >
@@ -738,24 +770,24 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                       <div className="relative h-44 bg-slate-100 overflow-hidden">
                         <img src={pkg.image_url} alt={pkg.name} className="w-full h-full object-cover object-top" />
                         {pkg.badge && (
-                          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-[#F26513] text-white text-[10px] font-bold uppercase">
+                          <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded bg-[#F26513] text-white text-[10px] font-black uppercase">
                             {pkg.badge}
                           </span>
                         )}
                       </div>
 
                       <div className="p-6 space-y-2.5">
-                        <span className="text-xs font-semibold text-slate-500">
+                        <span className="text-xs font-bold text-slate-500 uppercase">
                           Durée : {pkg.duration_label}
                         </span>
-                        <h3 className="text-lg font-bold text-slate-950">{pkg.name}</h3>
-                        <p className="text-2xl font-bold text-[#F26513]">
+                        <h3 className="text-lg font-black text-slate-950">{pkg.name}</h3>
+                        <div className="text-2xl font-black text-[#F26513]">
                           {pkg.price_label}
-                        </p>
+                        </div>
                         <ul className="space-y-1.5 pt-2">
                           {(pkg.features || []).map((feat, i) => (
                             <li key={i} className="flex items-start gap-2 text-xs text-slate-700">
-                              <Check className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-4 h-4 text-[#F26513] shrink-0 mt-0.5" />
                               <span>{feat}</span>
                             </li>
                           ))}
@@ -767,13 +799,13 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                       <button
                         type="button"
                         onClick={() => setSelectedPackageId(pkg.id)}
-                        className={`w-full py-2.5 rounded-lg font-semibold text-xs uppercase tracking-wider transition-colors ${
+                        className={`w-full min-h-[46px] rounded-xl font-bold text-xs uppercase tracking-wider transition-colors ${
                           isSelected
                             ? 'bg-[#F26513] text-white'
                             : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
                         }`}
                       >
-                        {isSelected ? 'Forfait sélectionné' : 'Choisir ce forfait'}
+                        {isSelected ? 'Forfait choisi' : 'Sélectionner ce forfait'}
                       </button>
                     </div>
                   </div>
@@ -787,21 +819,18 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                 <h3 className="text-base font-bold text-slate-950">
                   Assistance de notre animatrice au studio à Lomé
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600">
-                  Une animatrice présente au studio de Lomé peut vous relayer, répondre aux commentaires et valoriser vos produits pendant la session.
-                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <button
                     type="button"
                     onClick={() => setRemoteAssistance('OUI')}
-                    className={`p-3.5 rounded-xl border text-left transition-colors ${
+                    className={`min-h-[54px] p-4 rounded-xl border-2 text-left transition-all ${
                       remoteAssistance === 'OUI'
-                        ? 'bg-orange-50 border-[#F26513] text-slate-950 font-semibold'
+                        ? 'bg-orange-50 border-[#F26513] text-slate-950 font-bold shadow-xs'
                         : 'bg-slate-50 border-slate-200 text-slate-700'
                     }`}
                   >
                     <div className="text-xs sm:text-sm">Oui, je souhaite un relais animatrice</div>
-                    <div className="text-xs text-[#F26513] font-semibold mt-1">
+                    <div className="text-xs text-[#F26513] font-bold mt-1">
                       {selectedPackage?.remote_assistance_included
                         ? 'Inclus dans ce forfait'
                         : `+${Number(selectedPackage?.remote_assistance_fee_fcfa || 0).toLocaleString('fr-FR')} FCFA`}
@@ -810,54 +839,15 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                   <button
                     type="button"
                     onClick={() => setRemoteAssistance('NON')}
-                    className={`p-3.5 rounded-xl border text-left transition-colors ${
+                    className={`min-h-[54px] p-4 rounded-xl border-2 text-left transition-all ${
                       remoteAssistance === 'NON'
-                        ? 'bg-orange-50 border-[#F26513] text-slate-950 font-semibold'
+                        ? 'bg-orange-50 border-[#F26513] text-slate-950 font-bold shadow-xs'
                         : 'bg-slate-50 border-slate-200 text-slate-700'
                     }`}
                   >
-                    <div className="text-xs sm:text-sm">Non, j'anime seul de manière autonome</div>
-                    <div className="text-xs text-slate-400 mt-1">Sans supplément</div>
+                    <div className="text-xs sm:text-sm">Non, j'anime seul</div>
+                    <div className="text-xs text-slate-500 mt-1">Sans supplément</div>
                   </button>
-                </div>
-              </div>
-            )}
-
-            {/* Options supplémentaires */}
-            {addons.length > 0 && (
-              <div className="rounded-2xl bg-white border border-slate-200 p-6 space-y-3 shadow-xs">
-                <h3 className="text-base font-bold text-slate-950">
-                  Options complémentaires (facultatif)
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {addons.map((addon) => {
-                    const checked = selectedAddonCodes.includes(addon.code);
-                    return (
-                      <div
-                        key={addon.code}
-                        onClick={() =>
-                          setSelectedAddonCodes((prev) =>
-                            prev.includes(addon.code)
-                              ? prev.filter((c) => c !== addon.code)
-                              : [...prev, addon.code]
-                          )
-                        }
-                        className={`cursor-pointer p-4 rounded-xl border transition-colors ${
-                          checked
-                            ? 'bg-orange-50 border-[#F26513]'
-                            : 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="font-semibold text-xs text-slate-900">{addon.name}</span>
-                          <input type="checkbox" checked={checked} onChange={() => {}} className="accent-[#F26513]" />
-                        </div>
-                        <p className="text-xs font-bold text-[#F26513] mt-2">
-                          +{Number(addon.price_fcfa).toLocaleString('fr-FR')} FCFA
-                        </p>
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
             )}
@@ -866,17 +856,17 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold text-xs uppercase tracking-wider"
+                className="min-h-[48px] px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider"
               >
                 Précédent
               </button>
               <button
                 type="button"
                 onClick={() => validateAndGoNext(4)}
-                className="px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+                className="min-h-[52px] px-8 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md active:scale-95"
               >
-                <span>Étape suivante : Coordonnées</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continuer : Mes coordonnées</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -884,78 +874,78 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
 
         {/* ÉTAPE 4 : COORDONNÉES PERSONNELLES */}
         {currentStep === 4 && (
-          <div className="max-w-3xl mx-auto rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="max-w-3xl mx-auto rounded-2xl bg-white border border-slate-200 p-6 sm:p-9 space-y-6 shadow-xs">
             <div className="pb-3 border-b border-slate-200">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-950">
-                Informations du responsable
+              <h2 className="text-2xl font-black text-slate-950">
+                Vos coordonnées
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Ces informations permettront à notre équipe de vous contacter pour la coordination technique.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Renseignez le numéro sur lequel vous souhaitez recevoir la confirmation.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Nom *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Nom de famille *</label>
                 <input
                   type="text"
                   required
                   value={personalInfo.client_last_name}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_last_name: e.target.value })}
                   placeholder="Ex. Dossou"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Prénom *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Prénom *</label>
                 <input
                   type="text"
                   required
                   value={personalInfo.client_first_name}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_first_name: e.target.value })}
                   placeholder="Ex. Jean-Eudes"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Téléphone d'appel *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Téléphone d'appel direct *</label>
                 <input
                   type="tel"
                   required
                   value={personalInfo.client_phone}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_phone: e.target.value })}
                   placeholder="Ex. +228 90 00 00 00"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Numéro WhatsApp *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Numéro WhatsApp *</label>
                 <input
                   type="tel"
                   required
                   value={personalInfo.client_whatsapp}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_whatsapp: e.target.value })}
                   placeholder="Ex. +228 90 00 00 00"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Adresse e-mail *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Adresse e-mail *</label>
                 <input
                   type="email"
                   required
                   value={personalInfo.client_email}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_email: e.target.value })}
-                  placeholder="Ex. contact@votre-entreprise.com"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="contact@votre-boutique.com"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Pays de résidence *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Pays de résidence *</label>
                 <select
                   value={personalInfo.client_country}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_country: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 >
                   {AFRICAN_COUNTRIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -963,25 +953,25 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Ville *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Ville *</label>
                 <input
                   type="text"
                   required
                   value={personalInfo.client_city}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_city: e.target.value })}
-                  placeholder="Ex. Lomé, Cotonou, Douala..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="Lomé, Cotonou, Douala..."
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Adresse ou quartier *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Quartier ou adresse *</label>
                 <input
                   type="text"
                   required
                   value={personalInfo.client_address}
                   onChange={(e) => setPersonalInfo({ ...personalInfo, client_address: e.target.value })}
-                  placeholder="Ex. Tokoin Wuiti, Immeuble Boovan"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="Ex. Tokoin Wuiti"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
             </div>
@@ -990,17 +980,17 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className="px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold text-xs uppercase tracking-wider"
+                className="min-h-[48px] px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider"
               >
                 Précédent
               </button>
               <button
                 type="button"
                 onClick={() => validateAndGoNext(5)}
-                className="px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+                className="min-h-[52px] px-8 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md active:scale-95"
               >
-                <span>Étape suivante : Entreprise</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continuer : Mon entreprise</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -1008,44 +998,34 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
 
         {/* ÉTAPE 5 : ENTREPRISE & PRODUITS */}
         {currentStep === 5 && (
-          <div className="max-w-4xl mx-auto rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="max-w-4xl mx-auto rounded-2xl bg-white border border-slate-200 p-6 sm:p-9 space-y-6 shadow-xs">
             <div className="pb-3 border-b border-slate-200">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-950">
-                Informations sur l'entreprise et les produits
+              <h2 className="text-2xl font-black text-slate-950">
+                Votre entreprise et vos produits
               </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Ces détails seront utilisés pour préparer l'affichage régie et le bandeau d'achat pendant votre live.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Ces informations s'affichent sur le bandeau d'achat pendant votre live.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Nom légal ou raison sociale *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Nom de l'entreprise ou marque *</label>
                 <input
                   type="text"
                   required
                   value={companyInfo.company_name}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, company_name: e.target.value })}
-                  placeholder="Ex. Épicerie Délices d'Afrique SARL"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="Ex. Épicerie Délices d'Afrique"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Nom commercial ou marque</label>
-                <input
-                  type="text"
-                  value={companyInfo.trade_name}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, trade_name: e.target.value })}
-                  placeholder="Ex. Délices d'Afrique"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Secteur d'activité *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Secteur d'activité *</label>
                 <select
                   value={companyInfo.sector}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, sector: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 >
                   {SECTORS_SHOWCASE.map((s) => (
                     <option key={s.id} value={s.title}>{s.title}</option>
@@ -1054,176 +1034,81 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Nombre approximatif d'articles *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Nombre d'articles présentés *</label>
                 <input
                   type="text"
                   required
                   value={companyInfo.approx_products_count}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, approx_products_count: e.target.value })}
                   placeholder="Ex. 5 à 15 articles"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Description sommaire de l'activité *</label>
-                <textarea
-                  rows={2}
-                  required
-                  value={companyInfo.activity_description}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, activity_description: e.target.value })}
-                  placeholder="Présentez brièvement vos produits et votre positionnement..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Produits ou services présentés pendant la session *</label>
-                <textarea
-                  rows={2}
-                  required
-                  value={companyInfo.products_to_present}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, products_to_present: e.target.value })}
-                  placeholder="Listez les références principales présentées..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Téléphone commercial (affiché sur le live) *</label>
-                <input
-                  type="tel"
-                  required
-                  value={companyInfo.business_phone}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, business_phone: e.target.value })}
-                  placeholder="Ex. +228 90 00 00 00"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">WhatsApp commandes *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">WhatsApp commandes (affiché sur le live) *</label>
                 <input
                   type="tel"
                   required
                   value={companyInfo.business_whatsapp}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, business_whatsapp: e.target.value })}
-                  placeholder="Ex. +228 90 00 00 00"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="+228 90 00 00 00"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-800 mb-1">Description courte de ce que vous vendez *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={companyInfo.activity_description}
+                  onChange={(e) => setCompanyInfo({ ...companyInfo, activity_description: e.target.value })}
+                  placeholder="Présentez vos produits en quelques mots..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-800 mb-1">Articles clés présentés lors de la session *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={companyInfo.products_to_present}
+                  onChange={(e) => setCompanyInfo({ ...companyInfo, products_to_present: e.target.value })}
+                  placeholder="Listez les références principales..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Pays du siège commercial *</label>
-                <select
-                  value={companyInfo.business_country}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, business_country: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                >
-                  {AFRICAN_COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Téléphone boutique *</label>
+                <input
+                  type="tel"
+                  required
+                  value={companyInfo.business_phone}
+                  onChange={(e) => setCompanyInfo({ ...companyInfo, business_phone: e.target.value })}
+                  placeholder="+228 90 00 00 00"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
+                />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Ville du commerce *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Ville du commerce *</label>
                 <input
                   type="text"
                   required
                   value={companyInfo.business_city}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, business_city: e.target.value })}
-                  placeholder="Ex. Lomé, Cotonou, Yaoundé..."
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="Lomé, Cotonou, Yaoundé..."
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-medium text-slate-700 mb-1">Adresse physique de l'établissement *</label>
+                <label className="block text-xs font-bold text-slate-800 mb-1">Adresse de la boutique *</label>
                 <input
                   type="text"
                   required
                   value={companyInfo.business_address}
                   onChange={(e) => setCompanyInfo({ ...companyInfo, business_address: e.target.value })}
-                  placeholder="Ex. Boulevard du 13 Janvier, Lomé"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
+                  placeholder="Boulevard du 13 Janvier, Lomé"
+                  className="w-full min-h-[48px] px-4 py-2.5 rounded-xl bg-slate-50 border-2 border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 font-medium text-base"
                 />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Compte TikTok (si disponible)</label>
-                <input
-                  type="text"
-                  value={companyInfo.social_tiktok}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, social_tiktok: e.target.value })}
-                  placeholder="@votrecompte"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Page Facebook (si disponible)</label>
-                <input
-                  type="text"
-                  value={companyInfo.social_facebook}
-                  onChange={(e) => setCompanyInfo({ ...companyInfo, social_facebook: e.target.value })}
-                  placeholder="facebook.com/votrepage"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-300 focus:bg-white focus:border-[#F26513] outline-none text-slate-900 text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Objectifs du live */}
-            <div className="space-y-2 pt-3 border-t border-slate-200">
-              <label className="block text-xs font-medium text-slate-700">Objectif prioritaire de votre session</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {LIVE_OBJECTIVES_OPTIONS.map((obj) => {
-                  const active = companyInfo.live_objectives.includes(obj);
-                  return (
-                    <button
-                      key={obj}
-                      type="button"
-                      onClick={() =>
-                        setCompanyInfo((prev) => ({
-                          ...prev,
-                          live_objectives: prev.live_objectives.includes(obj)
-                            ? prev.live_objectives.filter((o) => o !== obj)
-                            : [...prev.live_objectives, obj]
-                        }))
-                      }
-                      className={`p-3 rounded-xl border text-left text-xs transition-colors ${
-                        active
-                          ? 'bg-orange-50 border-[#F26513] text-slate-950 font-semibold'
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
-                      }`}
-                    >
-                      {obj}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Fichiers logo / photos */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-200">
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                <span className="text-xs font-medium text-slate-700 block">Logo de marque</span>
-                <label className="cursor-pointer flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 hover:border-[#F26513] rounded-lg text-xs text-slate-600 bg-white">
-                  <Upload className="w-4 h-4 text-[#F26513]" />
-                  <span className="truncate">{uploadingField === 'logo' ? 'Téléversement...' : companyInfo.company_logo_url ? 'Logo joint' : 'Sélectionner'}</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e.target.files?.[0], 'logo')} />
-                </label>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                <span className="text-xs font-medium text-slate-700 block">
-                  Photos produits ({companyInfo.product_photos.length})
-                </span>
-                <label className="cursor-pointer flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 hover:border-[#F26513] rounded-lg text-xs text-slate-600 bg-white">
-                  <Upload className="w-4 h-4 text-[#F26513]" />
-                  <span className="truncate">{uploadingField === 'product_photo' ? 'Téléversement...' : 'Ajouter une photo'}</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e.target.files?.[0], 'product_photo')} />
-                </label>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
-                <span className="text-xs font-medium text-slate-700 block">Vidéo courte (facultatif)</span>
-                <label className="cursor-pointer flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 hover:border-[#F26513] rounded-lg text-xs text-slate-600 bg-white">
-                  <Upload className="w-4 h-4 text-[#F26513]" />
-                  <span className="truncate">{uploadingField === 'video' ? 'Téléversement...' : companyInfo.presentation_video_url ? 'Vidéo jointe' : 'Sélectionner'}</span>
-                  <input type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden" onChange={(e) => handleFileUpload(e.target.files?.[0], 'video')} />
-                </label>
               </div>
             </div>
 
@@ -1231,32 +1116,33 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
               <button
                 type="button"
                 onClick={() => setCurrentStep(4)}
-                className="px-5 py-2.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold text-xs uppercase tracking-wider"
+                className="min-h-[48px] px-6 py-3 rounded-xl bg-white border border-slate-300 text-slate-800 font-bold text-xs uppercase tracking-wider"
               >
                 Précédent
               </button>
               <button
                 type="button"
                 onClick={() => validateAndGoNext(6)}
-                className="px-6 py-3 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors"
+                className="min-h-[52px] px-8 py-3.5 rounded-xl bg-[#F26513] hover:bg-[#DC5309] text-white font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md active:scale-95"
               >
-                <span>Étape suivante : Récapitulatif</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Continuer : Récapitulatif</span>
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
         )}
 
-        {/* ÉTAPE 6 : RÉCAPITULATIF ET CONFIRMATION */}
+        {/* ÉTAPE 6 : RÉCAPITULATIF ET VALIDATION FINALE */}
         {currentStep === 6 && (
           <form onSubmit={handleConfirmBooking} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
             <div className="lg:col-span-7 rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 space-y-5 shadow-xs">
               <div className="pb-3 border-b border-slate-200">
-                <h2 className="text-xl sm:text-2xl font-bold text-slate-950">
-                  Récapitulatif de votre demande
+                <h2 className="text-2xl font-black text-slate-950">
+                  Récapitulatif de votre réservation
                 </h2>
-                <p className="text-xs text-slate-500 mt-1">
-                  Vérifiez l'ensemble des informations avant de soumettre votre réservation.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Vérifiez vos informations avant de confirmer votre créneau.
                 </p>
               </div>
 
@@ -1272,8 +1158,7 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                 <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                   <span className="text-[11px] font-bold uppercase text-slate-400">Entreprise</span>
                   <p className="font-bold text-slate-950">{companyInfo.company_name}</p>
-                  <p className="text-xs text-[#F26513] font-semibold">{companyInfo.sector}</p>
-                  <p className="text-xs text-slate-600">Articles : {companyInfo.approx_products_count}</p>
+                  <p className="text-xs text-[#F26513] font-bold">{companyInfo.sector}</p>
                   <p className="text-xs text-slate-600">WhatsApp : {companyInfo.business_whatsapp}</p>
                 </div>
               </div>
@@ -1281,38 +1166,21 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs sm:text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-600">Modalité :</span>
-                  <span className="font-semibold text-slate-950">
-                    {participationMode === 'PRESENTIEL' ? 'Présentiel au studio (Lomé)' : 'À distance'}
+                  <span className="font-bold text-slate-950">
+                    {participationMode === 'PRESENTIEL' ? 'Au studio à Lomé' : 'À distance'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Date et horaire (GMT) :</span>
-                  <span className="font-semibold text-[#F26513]">{selectedDate} • {selectedSlot?.label}</span>
+                  <span className="text-slate-600">Date & créneau :</span>
+                  <span className="font-bold text-[#F26513]">{selectedDate} • {selectedSlot?.label}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Forfait ({selectedPackage?.name}) :</span>
-                  <span className="font-semibold text-slate-950">{selectedPackage?.price_label}</span>
+                  <span className="font-bold text-slate-950">{selectedPackage?.price_label}</span>
                 </div>
-                {participationMode === 'DISTANCE' && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-600">Relais animatrice Lomé :</span>
-                    <span className="font-semibold text-slate-950">{remoteAssistance}</span>
-                  </div>
-                )}
-                {pricingSummary.selectedAddonsList.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200 space-y-1">
-                    <span className="text-[11px] font-semibold text-slate-500 uppercase">Options retenues :</span>
-                    {pricingSummary.selectedAddonsList.map((a) => (
-                      <div key={a.code} className="flex justify-between text-xs text-slate-600">
-                        <span>{a.name}</span>
-                        <span>+{Number(a.price_fcfa).toLocaleString('fr-FR')} FCFA</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
                 <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
-                  <span className="font-bold text-sm text-slate-950">Montant total estimé :</span>
-                  <span className="text-2xl font-bold text-[#F26513]">
+                  <span className="font-bold text-sm text-slate-950">Montant total :</span>
+                  <span className="text-2xl font-black text-[#F26513]">
                     {pricingSummary.isCustom
                       ? 'Sur devis'
                       : `${pricingSummary.total.toLocaleString('fr-FR')} FCFA`}
@@ -1324,22 +1192,15 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
             <div className="lg:col-span-5 rounded-2xl bg-white border border-slate-200 p-6 sm:p-8 space-y-4 shadow-xs flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-950">
+                  <h3 className="text-lg font-black text-slate-950">
                     Règlement et confirmation
                   </h3>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Choisissez votre méthode de paiement pour finaliser la réservation.
+                    Sélectionnez votre méthode de règlement.
                   </p>
                 </div>
 
-                {settings.payment_manual_instructions && (
-                  <p className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed whitespace-pre-line">
-                    {settings.payment_manual_instructions}
-                  </p>
-                )}
-
                 <div className="space-y-2">
-                  <label className="block text-xs font-semibold text-slate-700">Méthode de règlement *</label>
                   {[
                     { id: 'TMONEY_FLOOZ', label: 'Mobile Money (T-Money / Flooz)' },
                     { id: 'BANK_TRANSFER', label: 'Virement bancaire' },
@@ -1349,7 +1210,7 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                       key={m.id}
                       type="button"
                       onClick={() => setPaymentMethod(m.id)}
-                      className={`w-full p-3 rounded-xl border text-left text-xs font-semibold transition-colors ${
+                      className={`w-full min-h-[48px] p-3 rounded-xl border-2 text-left text-xs font-bold transition-all ${
                         paymentMethod === m.id
                           ? 'bg-orange-50 border-[#F26513] text-slate-950 shadow-xs'
                           : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300'
@@ -1360,73 +1221,44 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
                   ))}
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Référence de transaction (si déjà effectuée)
-                  </label>
-                  <input
-                    type="text"
-                    value={paymentReference}
-                    onChange={(e) => setPaymentReference(e.target.value)}
-                    placeholder="Ex. Référence Mobile Money ou Virement"
-                    className="w-full px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 text-slate-900 text-xs outline-none focus:bg-white focus:border-[#F26513]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Reçu de paiement (facultatif à cette étape)
-                  </label>
-                  <label className="cursor-pointer flex items-center justify-center gap-2 p-2.5 border border-dashed border-slate-300 hover:border-[#F26513] rounded-lg text-xs text-slate-600 bg-slate-50">
-                    <Upload className="w-4 h-4 text-[#F26513]" />
-                    <span className="truncate">
-                      {uploadingField === 'payment_proof'
-                        ? 'Téléversement...'
-                        : paymentProofUrl
-                          ? 'Reçu joint'
-                          : 'Joindre une capture (JPG, PNG, PDF)'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*,application/pdf"
-                      className="hidden"
-                      onChange={(e) => handleFileUpload(e.target.files?.[0], 'payment_proof')}
-                    />
-                  </label>
-                </div>
-
                 <label className="flex items-start gap-2.5 cursor-pointer pt-2">
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-0.5 accent-[#F26513]"
+                    className="mt-1 accent-[#F26513] w-4 h-4"
                   />
-                  <span className="text-xs text-slate-600 leading-relaxed">
+                  <span className="text-xs text-slate-600 leading-relaxed font-medium">
                     J'accepte les conditions de réservation OCD LIVE et prends note que mon créneau est validé définitivement après vérification de mon règlement par Boovan Group. *
                   </span>
                 </label>
               </div>
 
-              <div className="space-y-2 pt-4">
-                <button
+              <div className="space-y-2.5 pt-4">
+                <OcdButton
                   type="submit"
-                  disabled={submitting}
-                  className="w-full py-3.5 rounded-lg bg-[#F26513] hover:bg-[#DC5309] text-white font-semibold text-xs uppercase tracking-wider transition-colors disabled:opacity-60"
+                  variant="primary"
+                  size="large"
+                  loading={submitting}
+                  loadingText="Validation en cours..."
+                  className="w-full"
                 >
-                  {submitting ? 'Enregistrement en cours...' : 'Confirmer ma réservation'}
-                </button>
+                  Confirmer et valider ma réservation
+                </OcdButton>
                 <button
                   type="button"
                   onClick={() => setCurrentStep(5)}
-                  className="w-full py-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors"
+                  className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider transition-colors"
                 >
-                  Modifier les informations de l'entreprise
+                  Modifier les informations
                 </button>
               </div>
+
             </div>
+
           </form>
         )}
+
       </div>
     </div>
   );
