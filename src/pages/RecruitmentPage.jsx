@@ -65,10 +65,6 @@ export default function RecruitmentPage() {
         {/* Présentation du poste */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500">
-              <span className="h-px w-5 bg-[#F26513] inline-block" />
-              <span>RECRUTEMENT STUDIO • LOMÉ, TOGO</span>
-            </div>
 
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-950">
               Rejoignez l'équipe d'animation OCD LIVE à Lomé

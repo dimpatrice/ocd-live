@@ -446,10 +446,6 @@ export default function BookingPage({ packages = [], addons = [], settings = {} 
         <div className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-500 mb-1.5">
-                <span className="h-px w-5 bg-[#F26513] inline-block" />
-                <span>RÉSERVATION EN LIGNE • LOMÉ GMT</span>
-              </div>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
                 Réserver un direct
               </h1>
