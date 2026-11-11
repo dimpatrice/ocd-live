@@ -127,6 +127,23 @@ export default function CommunityLivesPage() {
     }
   };
 
+  // Bloquer le scroll d'arrière-plan et gérer la touche Échap quand le modal est ouvert
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') setModalOpen(false);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [modalOpen]);
+
   return (
     <div className="bg-transparent min-h-screen text-slate-900 pb-20">
       
@@ -331,7 +348,24 @@ export default function CommunityLivesPage() {
               );
               const waLink = `https://wa.me/${waClean}?text=${waMsg}`;
 
-              return (
+              // Bloquer le scroll d'arrière-plan et gérer la touche Échap quand le modal est ouvert
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.style.overflow = 'hidden';
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') setModalOpen(false);
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    } else {
+      document.body.style.overflow = '';
+    }
+  }, [modalOpen]);
+
+  return (
                 <div
                   key={live.id}
                   className="rounded-2xl border-2 border-slate-200 hover:border-[#F26513] bg-white shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
@@ -411,197 +445,241 @@ export default function CommunityLivesPage() {
       </section>
 
       {/* =====================================================================
-          4. MODAL DE SOUMISSION SIMPLE & GUIDÉ
+          4. MODAL DE SOUMISSION DU DIRECT (ERGONOMIQUE, ACCESSIBLE, CENTRÉ)
       ===================================================================== */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8">
-            
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-[#F26513]">
-                  Abonnement 5 000 FCFA / mois
-                </span>
-                <h3 className="font-extrabold text-xl text-slate-950 mt-0.5">
-                  Diffuser mon direct sur OCD LIVE
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700 p-2 rounded-lg"
-                aria-label="Fermer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {submitSuccess ? (
-              <div className="py-8 text-center space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
-                  <CheckCircle2 className="w-8 h-8" />
+        <div 
+          className="fixed inset-0 z-[100] overflow-y-auto bg-slate-950/75 backdrop-blur-sm transition-all"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setModalOpen(false);
+          }}
+        >
+          <div className="flex min-h-full items-center justify-center p-3 sm:p-6 text-center">
+            <div 
+              className="relative w-full max-w-2xl text-left bg-white rounded-3xl shadow-2xl border-2 border-orange-200 overflow-hidden my-6 transform transition-all animate-in fade-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              
+              {/* En-tête du modal */}
+              <div className="p-6 sm:p-7 border-b border-slate-200 bg-gradient-to-r from-orange-50/80 via-amber-50/40 to-white flex items-start justify-between gap-4">
+                <div className="space-y-1.5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 border border-orange-200 text-[#F26513] text-xs font-black uppercase">
+                    <Radio className="w-3.5 h-3.5 animate-pulse" />
+                    <span>Abonnement 5 000 FCFA / mois (166 F / jour)</span>
+                  </span>
+                  <h3 className="font-black text-2xl sm:text-3xl text-slate-950 tracking-tight">
+                    Diffuser mon direct sur OCD LIVE
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                    Envoyez votre lien de live (TikTok, Facebook...). Notre équipe de régie à Lomé vérifie votre flux et l'affiche sur le site.
+                  </p>
                 </div>
-                <h4 className="font-extrabold text-xl text-slate-950">
-                  Lien de direct enregistré !
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
-                  {submitSuccess} Notre équipe à Lomé vérifie votre stream pendant le créneau en cours pour l'afficher sur le site.
-                </p>
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="min-h-[46px] px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider"
+                  className="p-2.5 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors shrink-0"
+                  aria-label="Fermer la boîte de dialogue"
                 >
-                  Fermer
+                  <X className="w-6 h-6" />
                 </button>
               </div>
-            ) : (
-              <form onSubmit={handleSubmitLive} className="pt-4 space-y-4 text-xs">
-                {submitError && (
-                  <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{submitError}</span>
+
+              {/* Contenu du modal */}
+              <div className="p-6 sm:p-7 max-h-[calc(85vh-130px)] overflow-y-auto space-y-5">
+                
+                {submitSuccess ? (
+                  <div className="py-10 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-300">
+                      <CheckCircle2 className="w-9 h-9" />
+                    </div>
+                    <h4 className="font-black text-2xl text-slate-950">
+                      Lien de direct enregistré !
+                    </h4>
+                    <p className="text-sm text-slate-700 leading-relaxed max-w-md mx-auto font-medium">
+                      {submitSuccess} Notre équipe de régie à Lomé vérifie votre flux pour l'afficher en tête des directs au Cameroun, Bénin, Togo ou dans votre pays.
+                    </p>
+                    <div className="pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setModalOpen(false)}
+                        className="min-h-[48px] px-8 py-3 rounded-xl bg-slate-950 hover:bg-[#F26513] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md"
+                      >
+                        Fermer et retourner aux directs
+                      </button>
+                    </div>
                   </div>
+                ) : (
+                  <form onSubmit={handleSubmitLive} className="space-y-4">
+                    
+                    {/* Rappel du fonctionnement */}
+                    <div className="p-3.5 rounded-2xl bg-orange-50/70 border border-orange-200 text-xs text-slate-800 space-y-1">
+                      <strong className="font-bold text-slate-900 block">
+                        Créneaux de validation en régie :
+                      </strong>
+                      <p className="text-slate-700">
+                        Matin (08h00 - 11h00 GMT) & Soir (18h00 - 21h00 GMT). Les acheteurs de votre pays peuvent vous regarder et commander sur votre WhatsApp.
+                      </p>
+                    </div>
+
+                    {submitError && (
+                      <div className="p-4 rounded-xl bg-rose-50 border-2 border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-2.5">
+                        <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+                        <span>{submitError}</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Votre nom complet *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ex. Christine Lawson"
+                          value={formData.seller_name}
+                          onChange={(e) => setFormData({ ...formData, seller_name: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none text-slate-950 text-base sm:text-sm font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Nom de votre commerce / marque
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ex. Mode & Pagnes d'Abidjan"
+                          value={formData.business_name}
+                          onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none text-slate-950 text-base sm:text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Pays d'où vous vendez *
+                        </label>
+                        <select
+                          value={formData.country}
+                          onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none bg-white text-slate-950 text-base sm:text-sm font-medium"
+                        >
+                          {AFRICAN_COUNTRIES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Rayon / Catégorie de produits *
+                        </label>
+                        <select
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none bg-white text-slate-950 text-base sm:text-sm font-medium"
+                        >
+                          {CATEGORIES.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                        Lien direct de votre stream (TikTok, Facebook, Instagram...) *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://www.tiktok.com/@votrecompte/live"
+                        value={formData.live_url}
+                        onChange={(e) => setFormData({ ...formData, live_url: e.target.value })}
+                        className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none font-mono text-slate-950 text-base sm:text-sm font-medium"
+                      />
+                      <span className="text-xs text-slate-500 mt-1 block">
+                        Sur votre application (TikTok/Facebook), cliquez sur « Partager » puis « Copier le lien » et collez-le ici.
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Numéro WhatsApp commercial *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          placeholder="+228 90 00 00 00"
+                          value={formData.whatsapp}
+                          onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none font-mono text-slate-950 text-base sm:text-sm font-medium"
+                        />
+                        <span className="text-[11px] text-slate-500 mt-0.5 block">
+                          Les clients cliqueront pour commander directement sur votre WhatsApp.
+                        </span>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                          Créneau de passage souhaité *
+                        </label>
+                        <select
+                          value={formData.time_slot}
+                          onChange={(e) => setFormData({ ...formData, time_slot: e.target.value })}
+                          className="w-full min-h-[48px] px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none bg-white text-slate-950 text-base sm:text-sm font-medium"
+                        >
+                          <option value="MATIN">Matinée (08h00 - 11h00 GMT)</option>
+                          <option value="SOIR">Soirée (18h00 - 21h00 GMT)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-slate-900 text-sm mb-1.5">
+                        Description courte de vos produits
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="Ex. Robes en lin, pagnes wax de fête et sandales artisanales en cuir..."
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-[#F26513] focus:ring-0 outline-none text-slate-950 text-base sm:text-sm font-medium"
+                      />
+                    </div>
+
+                    <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                      <OcdButton
+                        type="submit"
+                        variant="primary"
+                        size="large"
+                        loading={submitting}
+                        loadingText="Transmission à l'équipe..."
+                        className="flex-1 min-h-[52px] text-sm font-black"
+                      >
+                        Envoyer mon direct à l'équipe
+                      </OcdButton>
+                      <button
+                        type="button"
+                        onClick={() => setModalOpen(false)}
+                        className="px-6 py-3 rounded-xl border-2 border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider"
+                      >
+                        Annuler
+                      </button>
+                    </div>
+
+                  </form>
                 )}
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Votre nom et prénom *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Ex. Christine Lawson"
-                      value={formData.seller_name}
-                      onChange={(e) => setFormData({ ...formData, seller_name: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Nom de votre commerce
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex. Épices d'Abomey"
-                      value={formData.business_name}
-                      onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Pays d'origine *
-                    </label>
-                    <select
-                      value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none bg-white text-base sm:text-sm"
-                    >
-                      {AFRICAN_COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Rayon de produits *
-                    </label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none bg-white text-base sm:text-sm"
-                    >
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">
-                    Lien de votre direct en cours (TikTok, Facebook...) *
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="https://www.tiktok.com/@votrecompte/live"
-                    value={formData.live_url}
-                    onChange={(e) => setFormData({ ...formData, live_url: e.target.value })}
-                    className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none font-mono text-base sm:text-sm"
-                  />
-                  <span className="text-[11px] text-slate-500 mt-0.5 block">
-                    Copiez le lien de partage depuis votre application TikTok ou Facebook.
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Numéro WhatsApp (commandes) *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      placeholder="+228 90 00 00 00"
-                      value={formData.whatsapp}
-                      onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none font-mono text-base sm:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-800 mb-1">
-                      Créneau de passage *
-                    </label>
-                    <select
-                      value={formData.time_slot}
-                      onChange={(e) => setFormData({ ...formData, time_slot: e.target.value })}
-                      className="w-full min-h-[46px] px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none bg-white text-base sm:text-sm"
-                    >
-                      <option value="MATIN">Matin (08h00 - 11h00 GMT)</option>
-                      <option value="SOIR">Soir (18h00 - 21h00 GMT)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">
-                    Ce que vous vendez (description courte)
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="Ex. Vente de pagnes wax, robes en lin et sandales en cuir..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-[#F26513] outline-none text-base sm:text-sm"
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <OcdButton
-                    type="submit"
-                    variant="primary"
-                    size="large"
-                    loading={submitting}
-                    loadingText="Envoi à l'équipe en cours..."
-                    className="w-full"
-                  >
-                    Envoyer mon direct à l'équipe
-                  </OcdButton>
-                </div>
-              </form>
-            )}
+            </div>
           </div>
         </div>
       )}

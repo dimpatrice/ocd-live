@@ -99,9 +99,6 @@ export default function HomePage({ packages = [], settings = {} }) {
                     to="/reserver?mode=PRESENTIEL"
                     className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-[#F26513] to-[#d65109] text-white transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5 active:scale-[0.98]"
                   >
-                    <div className="flex items-center justify-between">
-                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </div>
                     <div className="mt-3.5">
                       <strong className="block text-lg font-black leading-tight">Venir au Studio à Lomé</strong>
                       <span className="text-xs text-orange-100 font-medium mt-1 block">
@@ -115,9 +112,6 @@ export default function HomePage({ packages = [], settings = {} }) {
                     to="/lives-afrique"
                     className="group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl bg-white border-2 border-slate-300 hover:border-[#F26513] text-slate-950 transition-all duration-200 hover:shadow-lg hover:shadow-slate-200 hover:-translate-y-0.5 active:scale-[0.98]"
                   >
-                    <div className="flex items-center justify-between">
-                      <Radio className="w-5 h-5 text-[#F26513] animate-pulse" />
-                    </div>
                     <div className="mt-3.5">
                       <strong className="block text-lg font-black leading-tight">Diffuser mon propre direct</strong>
                       <span className="text-xs text-slate-600 font-medium mt-1 block">
@@ -178,11 +172,6 @@ export default function HomePage({ packages = [], settings = {} }) {
                   <span className="text-xs font-black uppercase tracking-wider">
                     Direct Régie Lomé
                   </span>
-                </div>
-
-                {/* Badge créneau de validation actif */}
-                <div className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-orange-200 text-xs font-bold">
-                  Créneaux : 08h-11h & 18h-21h
                 </div>
 
                 {/* Cartouche d'action en bas de photo */}
@@ -355,7 +344,7 @@ export default function HomePage({ packages = [], settings = {} }) {
             <div className="rounded-3xl bg-white/95 border-2 border-orange-200 p-7 sm:p-9 space-y-6 flex flex-col justify-between shadow-[0_8px_30px_rgb(242,101,19,0.06)] hover:shadow-xl transition-all">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="px-3.5 py-1.5 rounded-full bg-orange-100 text-[#F26513] text-xs font-black uppercase border border-orange-200">
+                  <span className="px-3.5 py-1.5  text-[#F26513] text-xs font-black uppercase ">
                     Au Studio • Lomé, Togo
                   </span>
                   <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
@@ -402,7 +391,7 @@ export default function HomePage({ packages = [], settings = {} }) {
             <div className="rounded-3xl bg-white/95 border-2 border-emerald-200 p-7 sm:p-9 space-y-6 flex flex-col justify-between shadow-[0_8px_30px_rgb(16,185,129,0.06)] hover:shadow-xl transition-all">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase border border-emerald-300">
+                  <span className="px-3.5 py-1.5  text-emerald-900 text-xs font-black uppercase">
                     À distance • Panafricain
                   </span>
                   <span className="text-sm font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
