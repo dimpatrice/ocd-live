@@ -348,24 +348,7 @@ export default function CommunityLivesPage() {
               );
               const waLink = `https://wa.me/${waClean}?text=${waMsg}`;
 
-              // Bloquer le scroll d'arrière-plan et gérer la touche Échap quand le modal est ouvert
-  useEffect(() => {
-    if (modalOpen) {
-      document.body.style.overflow = 'hidden';
-      const handleKeyDown = (e) => {
-        if (e.key === 'Escape') setModalOpen(false);
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.body.style.overflow = '';
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    } else {
-      document.body.style.overflow = '';
-    }
-  }, [modalOpen]);
-
-  return (
+              return (
                 <div
                   key={live.id}
                   className="rounded-2xl border-2 border-slate-200 hover:border-[#F26513] bg-white shadow-xs hover:shadow-md transition-all overflow-hidden flex flex-col justify-between"
